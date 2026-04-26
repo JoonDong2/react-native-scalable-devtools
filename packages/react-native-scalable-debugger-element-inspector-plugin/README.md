@@ -22,6 +22,7 @@ curl -s "http://localhost:8081/element-inspector?appId=<id>"
 ```
 
 Use `GET /apps` to list connected apps and select an `appId`.
+The REST endpoint accepts only `appId` and `timeoutMs` query parameters.
 
 `GET /element-inspector` always asks the app runtime for a fresh snapshot. It
 does not return a cached element tree.

@@ -5,6 +5,8 @@ import type {
 import type { IncomingMessage, ServerResponse } from 'http';
 import type { ElementInspectorController } from './ElementInspectorController';
 
+const SUPPORTED_QUERY_PARAMS = new Set(['appId', 'timeoutMs']);
+
 export function createElementInspectorMiddleware(
   controller: ElementInspectorController
 ) {
@@ -26,6 +28,19 @@ export function createElementInspectorMiddleware(
     }
 
     const requestUrl = new URL(request.url || '/', 'http://localhost');
+    const unsupportedQueryParams = getUnsupportedQueryParams(
+      requestUrl.searchParams
+    );
+    if (unsupportedQueryParams.length > 0) {
+      writeJson(response, 400, {
+        ok: false,
+        error: 'unsupported_query_param',
+        message: `Unsupported element inspector query parameter(s): ${unsupportedQueryParams.join(
+          ', '
+        )}. Supported parameters are appId and timeoutMs. Use GET /apps to list connected apps.`,
+      });
+      return;
+    }
 
     const result = await controller.requestSnapshot(context, {
       appId: requestUrl.searchParams.get('appId') ?? undefined,
@@ -33,6 +48,12 @@ export function createElementInspectorMiddleware(
     });
     writeJson(response, result.statusCode, withoutStatusCode(result));
   };
+}
+
+function getUnsupportedQueryParams(searchParams: URLSearchParams): string[] {
+  return Array.from(new Set(searchParams.keys())).filter(
+    (param) => !SUPPORTED_QUERY_PARAMS.has(param)
+  );
 }
 
 function parseTimeoutMs(value: string | null): number | undefined {
