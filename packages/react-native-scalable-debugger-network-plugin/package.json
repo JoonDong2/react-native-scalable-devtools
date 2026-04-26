@@ -1,0 +1,38 @@
+{
+  "name": "react-native-scalable-debugger-network-plugin",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./client": {
+      "types": "./dist/client/index.d.ts",
+      "default": "./dist/client/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "package.json"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json && rollup -c",
+    "prebuild": "yarn workspace react-native-scalable-debugger build:types",
+    "pretypecheck": "yarn workspace react-native-scalable-debugger build:types",
+    "typecheck": "tsc --noEmit",
+    "test": "yarn typecheck"
+  },
+  "dependencies": {
+    "base64-js": "^1.5.1"
+  },
+  "peerDependencies": {
+    "react-native": "*",
+    "react-native-scalable-debugger": "*"
+  },
+  "devDependencies": {
+    "react-native-scalable-debugger": "0.1.0"
+  },
+  "license": "MIT"
+}

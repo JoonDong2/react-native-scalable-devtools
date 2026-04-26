@@ -1,0 +1,59 @@
+{
+  "name": "react-native-scalable-debugger",
+  "version": "0.1.0",
+  "main": "dist/server/index.js",
+  "types": "dist/server/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/server/index.d.ts",
+      "default": "./dist/server/index.js"
+    },
+    "./client": {
+      "types": "./dist/client/index.d.ts",
+      "default": "./dist/client/index.js"
+    },
+    "./plugin": {
+      "types": "./dist/plugin/index.d.ts",
+      "default": "./dist/plugin/index.js"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "client": [
+        "dist/client/index.d.ts"
+      ],
+      "plugin": [
+        "dist/plugin/index.d.ts"
+      ],
+      "*": [
+        "dist/server/index.d.ts"
+      ]
+    }
+  },
+  "files": [
+    "dist",
+    "package.json"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json && rollup -c",
+    "build:types": "tsc -p tsconfig.json --emitDeclarationOnly",
+    "typecheck": "tsc --noEmit",
+    "test": "yarn typecheck"
+  },
+  "dependencies": {},
+  "peerDependencies": {
+    "@react-native/dev-middleware": "*",
+    "@react-native/metro-config": "*",
+    "chalk": "*",
+    "debug": "*",
+    "metro": "*",
+    "metro-config": "*",
+    "metro-core": "*",
+    "metro-resolver": "*",
+    "react-native": "*",
+    "semver": "*",
+    "ws": "*"
+  },
+  "devDependencies": {},
+  "license": "MIT"
+}
