@@ -51,10 +51,6 @@ export interface ClientEntryContribution {
   importPath: string;
 }
 
-export interface DebuggerFrontendContribution {
-  resolvePath: () => string | null | Promise<string | null>;
-}
-
 export interface WebSocketEndpointContribution {
   path: string;
   server:
@@ -68,7 +64,6 @@ export interface ScalableDebuggerPlugin {
   name: string;
   domains?: readonly InspectorDomainFactory[];
   clientEntries?: readonly (string | ClientEntryContribution)[];
-  debuggerFrontend?: DebuggerFrontendContribution;
   websocketEndpoints?: readonly WebSocketEndpointContribution[];
   handleDeviceMessage?: (
     payload: JSONSerializable,

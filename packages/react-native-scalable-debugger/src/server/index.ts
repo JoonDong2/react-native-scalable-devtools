@@ -1,21 +1,30 @@
 import path from 'path';
 import runServer from './runServer';
 import type { Command } from '@react-native-community/cli-types';
-import type { RunServerOptions } from './runServer';
+import type { DebuggerFrontendPatch, RunServerOptions } from './runServer';
 import type { CLIConfig, ServerArgs } from '../types/metro';
+import type { ScalableDebuggerPlugin } from '../plugin';
 
 export type CreateStartCommandOptions = RunServerOptions;
+export type {
+  DebuggerFrontendOption,
+  DebuggerFrontendPatch,
+  DebuggerFrontendPatchContext,
+  RunServerOptions,
+} from './runServer';
 
 export function startCommand(
-  _options: CreateStartCommandOptions = {}
+  ...optionFragments: CreateStartCommandOptions[]
 ): Command {
+  const options = mergeStartCommandOptions(optionFragments);
+
   return {
     name: 'start',
     func: (
       argv: string[],
       cliConfig: CLIConfig,
       args: ServerArgs
-    ): Promise<void> => runServer(argv, cliConfig, args, _options),
+    ): Promise<void> => runServer(argv, cliConfig, args, options),
     description: 'Start the React Native development server.',
     options: [
       {
@@ -103,3 +112,34 @@ export function startCommand(
 export const createStartCommand = startCommand;
 
 export default startCommand();
+
+function mergeStartCommandOptions(
+  optionFragments: readonly CreateStartCommandOptions[]
+): RunServerOptions {
+  const merged: RunServerOptions = {};
+  const plugins: ScalableDebuggerPlugin[] = [];
+  const debuggerFrontendPatches: DebuggerFrontendPatch[] = [];
+
+  for (const options of optionFragments) {
+    if (options.plugins) {
+      plugins.push(...options.plugins);
+    }
+    if (options.debuggerFrontend !== undefined) {
+      merged.debuggerFrontend = options.debuggerFrontend;
+    }
+    if (typeof options.debuggerFrontendPatch === 'function') {
+      debuggerFrontendPatches.push(options.debuggerFrontendPatch);
+    } else if (Array.isArray(options.debuggerFrontendPatch)) {
+      debuggerFrontendPatches.push(...options.debuggerFrontendPatch);
+    }
+  }
+
+  if (plugins.length > 0) {
+    merged.plugins = plugins;
+  }
+  if (debuggerFrontendPatches.length > 0) {
+    merged.debuggerFrontendPatch = debuggerFrontendPatches;
+  }
+
+  return merged;
+}

@@ -1,11 +1,16 @@
 import type { ScalableDebuggerPlugin } from 'react-native-scalable-debugger/plugin';
+import type {
+  DebuggerFrontendPatch,
+  RunServerOptions,
+} from 'react-native-scalable-debugger';
 import { createNetworkDomain } from './server/NetworkDomain';
-import {
-  preparePatchedFrontend,
-  resolveConsumerFrontendDist,
-} from './server/patchDebuggerFrontend';
+import { preparePatchedFrontend } from './server/patchDebuggerFrontend';
 
-export const networkPanelPlugin: ScalableDebuggerPlugin = {
+export interface NetworkPanelPluginOptions {
+  patchDebuggerFrontend?: DebuggerFrontendPatch;
+}
+
+const networkPanelPluginDefinition: ScalableDebuggerPlugin = {
   name: 'network-panel',
   domains: [createNetworkDomain],
   clientEntries: [
@@ -13,16 +18,22 @@ export const networkPanelPlugin: ScalableDebuggerPlugin = {
       importPath: 'react-native-scalable-debugger-network-plugin/client',
     },
   ],
-  debuggerFrontend: {
-    resolvePath: () => {
-      const consumer = resolveConsumerFrontendDist();
-      return consumer ? preparePatchedFrontend(consumer.dist) : null;
-    },
-  },
 };
 
+export const patchDebuggerFrontend: DebuggerFrontendPatch = ({ sourceDist }) =>
+  preparePatchedFrontend(sourceDist);
+
+export function networkPanelPlugin(
+  options: NetworkPanelPluginOptions = {}
+): RunServerOptions {
+  return {
+    plugins: [networkPanelPluginDefinition],
+    debuggerFrontendPatch: options.patchDebuggerFrontend,
+  };
+}
+
 export function createNetworkPanelPlugin(): ScalableDebuggerPlugin {
-  return networkPanelPlugin;
+  return networkPanelPluginDefinition;
 }
 
 export default networkPanelPlugin;

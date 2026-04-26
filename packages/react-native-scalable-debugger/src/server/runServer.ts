@@ -72,8 +72,31 @@ interface ReporterClass {
 
 export interface RunServerOptions {
   plugins?: readonly ScalableDebuggerPlugin[];
-  debuggerFrontendPath?: string;
+  debuggerFrontend?: DebuggerFrontendOption;
+  debuggerFrontendPatch?:
+    | DebuggerFrontendPatch
+    | readonly DebuggerFrontendPatch[];
 }
+
+export type DebuggerFrontendOption =
+  | string
+  | DebuggerFrontendPatch
+  | {
+      path?: string;
+      sourceDist?: string;
+      patch?: DebuggerFrontendPatch;
+    };
+
+export interface DebuggerFrontendPatchContext {
+  sourceDist: string;
+  version: string;
+  projectRoot: string;
+  reactNativeVersion: string;
+}
+
+export type DebuggerFrontendPatch = (
+  context: DebuggerFrontendPatchContext
+) => string | null | Promise<string | null>;
 
 async function runServer(
   _argv: string[],
@@ -216,8 +239,13 @@ async function runServer(
     watchFolders,
   });
 
-  const debuggerFrontendPath =
-    options.debuggerFrontendPath ?? (await resolvePluginDebuggerFrontendPath(plugins));
+  const debuggerFrontendPath = await resolveDebuggerFrontendPath(
+    options,
+    {
+      projectRoot,
+      reactNativeVersion: cliConfig.reactNativeVersion,
+    }
+  );
   if (debuggerFrontendPath && isRNGte083Server(cliConfig.reactNativeVersion)) {
     process.env.REACT_NATIVE_DEBUGGER_FRONTEND_PATH = debuggerFrontendPath;
     purgePackageCache('@react-native/debugger-frontend');
@@ -407,19 +435,124 @@ function findPackageRoot(filePath: string): string | null {
   return null;
 }
 
-async function resolvePluginDebuggerFrontendPath(
-  plugins: readonly ScalableDebuggerPlugin[]
+async function resolveDebuggerFrontendPath(
+  options: RunServerOptions,
+  context: Pick<DebuggerFrontendPatchContext, 'projectRoot' | 'reactNativeVersion'>
 ): Promise<string | null> {
-  for (const plugin of plugins) {
-    if (!plugin.debuggerFrontend) {
-      continue;
+  const consumer = resolveConsumerDebuggerFrontendDist();
+  const base = resolveDebuggerFrontendBase(options.debuggerFrontend, consumer);
+  const patches = getDebuggerFrontendPatches(options);
+
+  if (patches.length === 0) {
+    return base.path;
+  }
+
+  let currentPath = base.path;
+  let currentSourceDist = base.sourceDist;
+
+  for (const patch of patches) {
+    if (!currentSourceDist) {
+      return currentPath;
     }
 
-    const resolved = await plugin.debuggerFrontend.resolvePath();
-    if (resolved) {
-      return resolved;
+    const patchedPath = await patch({
+      ...context,
+      sourceDist: currentSourceDist,
+      version: base.version,
+    });
+
+    if (patchedPath) {
+      currentPath = patchedPath;
+      currentSourceDist = inferDebuggerFrontendDist(patchedPath) ?? currentSourceDist;
     }
   }
 
-  return null;
+  return currentPath;
+}
+
+function resolveConsumerDebuggerFrontendDist(): {
+  dist: string;
+  version: string;
+} | null {
+  try {
+    const pkgPath = require.resolve('@react-native/debugger-frontend/package.json', {
+      paths: [process.cwd()],
+    });
+    const { version } = JSON.parse(fs.readFileSync(pkgPath, 'utf8')) as {
+      version: string;
+    };
+    return { dist: path.resolve(path.dirname(pkgPath), 'dist'), version };
+  } catch {
+    return null;
+  }
+}
+
+function resolveDebuggerFrontendBase(
+  option: DebuggerFrontendOption | undefined,
+  consumer: { dist: string; version: string } | null
+): { path: string | null; sourceDist: string | null; version: string } {
+  if (!option || typeof option === 'function') {
+    return {
+      path: null,
+      sourceDist: consumer?.dist ?? null,
+      version: consumer?.version ?? 'custom',
+    };
+  }
+
+  if (typeof option === 'string') {
+    return {
+      path: option,
+      sourceDist: inferDebuggerFrontendDist(option),
+      version: consumer?.version ?? 'custom',
+    };
+  }
+
+  const pathOption = option.path ?? null;
+  return {
+    path: pathOption,
+    sourceDist:
+      option.sourceDist ??
+      (pathOption ? inferDebuggerFrontendDist(pathOption) : consumer?.dist) ??
+      null,
+    version: consumer?.version ?? 'custom',
+  };
+}
+
+function getDebuggerFrontendPatches(
+  options: RunServerOptions
+): DebuggerFrontendPatch[] {
+  const patches: DebuggerFrontendPatch[] = [];
+  const { debuggerFrontend, debuggerFrontendPatch } = options;
+
+  if (typeof debuggerFrontend === 'function') {
+    patches.push(debuggerFrontend);
+  } else if (
+    debuggerFrontend &&
+    typeof debuggerFrontend !== 'string' &&
+    debuggerFrontend.patch
+  ) {
+    patches.push(debuggerFrontend.patch);
+  }
+
+  if (typeof debuggerFrontendPatch === 'function') {
+    patches.push(debuggerFrontendPatch);
+  } else if (Array.isArray(debuggerFrontendPatch)) {
+    patches.push(...debuggerFrontendPatch);
+  }
+
+  return patches;
+}
+
+function inferDebuggerFrontendDist(frontendPath: string): string {
+  const resolved = path.resolve(frontendPath);
+  if (fs.existsSync(path.join(resolved, 'third-party/front_end'))) {
+    return resolved;
+  }
+  if (
+    path.basename(resolved) === 'front_end' &&
+    path.basename(path.dirname(resolved)) === 'third-party'
+  ) {
+    return path.dirname(path.dirname(resolved));
+  }
+  return resolved;
 }
