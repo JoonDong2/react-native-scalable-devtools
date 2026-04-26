@@ -16,7 +16,8 @@
   "files": [
     "dist",
     "package.json",
-    "README.md"
+    "README.md",
+    "README.ko.md"
   ],
   "publishConfig": {
     "access": "public"

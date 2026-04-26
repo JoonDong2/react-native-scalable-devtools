@@ -32,7 +32,9 @@
   },
   "files": [
     "dist",
-    "package.json"
+    "package.json",
+    "README.md",
+    "README.ko.md"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json && rollup -c",
