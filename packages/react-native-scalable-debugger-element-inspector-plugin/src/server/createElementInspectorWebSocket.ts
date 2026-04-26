@@ -13,7 +13,7 @@ const WS = require('ws') as {
 interface WebSocketRequest {
   id?: string | number;
   type?: string;
-  deviceId?: string;
+  appId?: string;
   timeoutMs?: number;
 }
 
@@ -95,22 +95,11 @@ async function handleSocketMessage(
     return;
   }
 
-  if (request.type === 'listDevices') {
-    sendJson(socket, {
-      id: request.id,
-      type: 'devices',
-      ok: true,
-      devices: controller.listDevices(context),
-    });
-    return;
-  }
-
   if (request.type === 'subscribe') {
     const unsubscribe = controller.subscribe((result) => {
       if (
-        request.deviceId &&
-        result.device.deviceId !== request.deviceId &&
-        result.device.appId !== request.deviceId
+        request.appId &&
+        result.device.appId !== request.appId
       ) {
         return;
       }
@@ -125,7 +114,7 @@ async function handleSocketMessage(
       id: request.id,
       type: 'subscribed',
       ok: true,
-      deviceId: request.deviceId ?? null,
+      appId: request.appId ?? null,
     });
     return;
   }
@@ -142,7 +131,7 @@ async function handleSocketMessage(
 
   if (request.type === 'getTree') {
     const result = await controller.requestSnapshot(context, {
-      deviceId: request.deviceId,
+      appId: request.appId,
       timeoutMs: request.timeoutMs,
     });
 

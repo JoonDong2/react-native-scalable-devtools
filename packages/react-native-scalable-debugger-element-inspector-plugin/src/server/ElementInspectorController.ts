@@ -16,7 +16,7 @@ interface AppProxyMessage {
 }
 
 export interface SnapshotRequestOptions {
-  deviceId?: string;
+  appId?: string;
   timeoutMs?: number;
 }
 
@@ -83,7 +83,7 @@ export class ElementInspectorController {
   ): Promise<ControllerSnapshotResult> {
     this.attach(context);
 
-    const selection = this.#selectDevice(options.deviceId);
+    const selection = this.#selectApp(options.appId);
     if (!selection.ok) {
       return Promise.resolve(selection);
     }
@@ -102,7 +102,7 @@ export class ElementInspectorController {
           ok: false,
           statusCode: 504,
           error: 'snapshot_timeout',
-          message: `Timed out waiting for element snapshot from deviceId "${selection.device.deviceId}".`,
+          message: `Timed out waiting for element snapshot from appId "${selection.device.appId}".`,
           devices: this.listDevices(context),
         });
       }, clampTimeoutMs(options.timeoutMs));
@@ -113,7 +113,7 @@ export class ElementInspectorController {
         timeout,
       });
 
-      const sent = context.socketContext.sendToAppById(selection.device.deviceId, {
+      const sent = context.socketContext.sendToAppById(selection.device.appId, {
         method: ELEMENT_INSPECTOR_GET_TREE_METHOD,
         params,
       });
@@ -125,7 +125,7 @@ export class ElementInspectorController {
           ok: false,
           statusCode: 503,
           error: 'device_unavailable',
-          message: `No active app connection found for deviceId "${selection.device.deviceId}".`,
+          message: `No active app connection found for appId "${selection.device.appId}".`,
           devices: this.listDevices(context),
         });
       }
@@ -176,8 +176,8 @@ export class ElementInspectorController {
     this.#snapshotListeners.forEach((listener) => listener(broadcast));
   }
 
-  #selectDevice(
-    requestedDeviceId?: string
+  #selectApp(
+    requestedAppId?: string
   ): { ok: true; device: ElementInspectorDevice } | ControllerErrorResult {
     const devices = this.listDevices();
 
@@ -191,11 +191,9 @@ export class ElementInspectorController {
       };
     }
 
-    if (requestedDeviceId) {
+    if (requestedAppId) {
       const device = devices.find(
-        (candidate) =>
-          candidate.deviceId === requestedDeviceId ||
-          candidate.appId === requestedDeviceId
+        (candidate) => candidate.appId === requestedAppId
       );
 
       if (!device) {
@@ -203,7 +201,7 @@ export class ElementInspectorController {
           ok: false,
           statusCode: 404,
           error: 'device_not_found',
-          message: `No connected React Native app device matches "${requestedDeviceId}".`,
+          message: `No connected React Native app matches appId "${requestedAppId}".`,
           devices,
         };
       }
@@ -215,9 +213,9 @@ export class ElementInspectorController {
       return {
         ok: false,
         statusCode: 409,
-        error: 'device_required',
+        error: 'app_required',
         message:
-          'Multiple React Native app devices are connected. Pass ?deviceId=<id> to select one.',
+          'Multiple React Native apps are connected. Pass ?appId=<id> to select one.',
         devices,
       };
     }
@@ -236,7 +234,7 @@ export class ElementInspectorController {
 
 function toElementInspectorDevice(target: {
   appId: string;
-  deviceId: string;
+  nativeAppId?: string;
   name: string;
   connected: boolean;
   connectedAt: number;
@@ -244,7 +242,7 @@ function toElementInspectorDevice(target: {
 }): ElementInspectorDevice {
   return {
     appId: target.appId,
-    deviceId: target.deviceId,
+    nativeAppId: target.nativeAppId,
     name: target.name,
     connected: target.connected,
     connectedAt: target.connectedAt,
@@ -278,7 +276,7 @@ function isSameDevice(
   expected: ElementInspectorDevice,
   actual: ElementInspectorDevice
 ): boolean {
-  return expected.deviceId === actual.deviceId || expected.appId === actual.appId;
+  return expected.appId === actual.appId;
 }
 
 function clampTimeoutMs(value: number | undefined): number {

@@ -26,26 +26,12 @@ export function createElementInspectorMiddleware(
     }
 
     const requestUrl = new URL(request.url || '/', 'http://localhost');
-    const pretty = isTruthyQueryValue(requestUrl.searchParams.get('pretty'));
-
-    if (isTruthyQueryValue(requestUrl.searchParams.get('listDevices'))) {
-      writeJson(
-        response,
-        200,
-        {
-          ok: true,
-          devices: controller.listDevices(context),
-        },
-        pretty
-      );
-      return;
-    }
 
     const result = await controller.requestSnapshot(context, {
-      deviceId: requestUrl.searchParams.get('deviceId') ?? undefined,
+      appId: requestUrl.searchParams.get('appId') ?? undefined,
       timeoutMs: parseTimeoutMs(requestUrl.searchParams.get('timeoutMs')),
     });
-    writeJson(response, result.statusCode, withoutStatusCode(result), pretty);
+    writeJson(response, result.statusCode, withoutStatusCode(result));
   };
 }
 
@@ -55,10 +41,6 @@ function parseTimeoutMs(value: string | null): number | undefined {
   }
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : undefined;
-}
-
-function isTruthyQueryValue(value: string | null): boolean {
-  return value === '' || value === '1' || value === 'true' || value === 'yes';
 }
 
 function withoutStatusCode<T extends { statusCode: number }>(
@@ -71,10 +53,9 @@ function withoutStatusCode<T extends { statusCode: number }>(
 function writeJson(
   response: ServerResponse,
   statusCode: number,
-  body: unknown,
-  pretty = false
+  body: unknown
 ): void {
   response.statusCode = statusCode;
   response.setHeader('Content-Type', 'application/json; charset=utf-8');
-  response.end(JSON.stringify(body, null, pretty ? 2 : 0));
+  response.end(JSON.stringify(body));
 }

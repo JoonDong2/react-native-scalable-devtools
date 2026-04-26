@@ -18,9 +18,10 @@ module.exports = {
 When the React Native app is connected to Metro:
 
 ```sh
-curl -s http://localhost:8081/element-inspector?listDevices=1
-curl -s "http://localhost:8081/element-inspector?deviceId=<id>&pretty=1"
+curl -s "http://localhost:8081/element-inspector?appId=<id>"
 ```
+
+Use `GET /apps` to list connected apps and select an `appId`.
 
 `GET /element-inspector` always asks the app runtime for a fresh snapshot. It
 does not return a cached element tree.

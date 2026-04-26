@@ -14,7 +14,7 @@ export type JSONValue =
 
 export interface ElementInspectorDevice {
   appId: string;
-  deviceId: string;
+  nativeAppId?: string;
   name: string;
   connected: boolean;
   connectedAt: number;
@@ -77,12 +77,6 @@ export interface ElementInspectorErrorResponse {
   devices?: ElementInspectorDevice[];
 }
 
-export interface ElementInspectorDeviceListResponse {
-  ok: true;
-  devices: ElementInspectorDevice[];
-}
-
 export type ElementInspectorResponse =
   | ElementInspectorSuccessResponse
-  | ElementInspectorErrorResponse
-  | ElementInspectorDeviceListResponse;
+  | ElementInspectorErrorResponse;

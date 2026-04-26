@@ -1,6 +1,5 @@
 export type {
   ElementInspectorDevice,
-  ElementInspectorDeviceListResponse,
   ElementInspectorErrorResponse,
   ElementInspectorGetTreeParams,
   ElementInspectorLayout,
