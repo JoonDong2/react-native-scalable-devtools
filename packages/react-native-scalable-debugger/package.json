@@ -1,6 +1,11 @@
 {
   "name": "react-native-scalable-debugger",
   "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/JoonDong2/react-native-scalable-debugger",
+    "directory": "packages/react-native-scalable-debugger"
+  },
   "main": "dist/server/index.js",
   "types": "dist/server/index.d.ts",
   "exports": {
