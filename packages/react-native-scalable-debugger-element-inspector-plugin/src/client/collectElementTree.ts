@@ -24,6 +24,21 @@ interface CollectContext {
   nodeCount: number;
 }
 
+type MeasureCallback = (
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  pageX: number,
+  pageY: number
+) => void;
+
+interface MeasurableHostInstance {
+  measure: (callback: MeasureCallback) => void;
+}
+
+type LegacyMeasure = (node: number, callback: MeasureCallback) => void;
+
 export function collectElementTree(
   request: ElementInspectorGetTreeParams
 ): Promise<ElementInspectorSnapshot> {
@@ -205,30 +220,88 @@ function findInspectableHostFiber(
 async function measureLayout(
   fiber: ReactFiberLike | null
 ): Promise<ElementInspectorNode['layout'] | undefined> {
-  const reactTag = getReactTag(fiber?.stateNode);
+  const measureTarget = getMeasurableHostInstance(fiber?.stateNode);
+  const legacyReactTag = measureTarget ? null : getReactTag(fiber?.stateNode);
+  const legacyMeasure = legacyReactTag == null ? null : getLegacyMeasure();
 
-  if (reactTag == null) {
-    return undefined;
-  }
-
-  if (typeof UIManager.measure !== 'function') {
+  if (!measureTarget && (!legacyMeasure || legacyReactTag == null)) {
     return undefined;
   }
 
   return new Promise((resolve) => {
     try {
-      UIManager.measure(reactTag, (x, y, width, height, pageX, pageY) => {
+      const handleMeasure: MeasureCallback = (
+        x,
+        y,
+        width,
+        height,
+        pageX,
+        pageY
+      ) => {
         resolve({
           x: Number.isFinite(pageX) ? pageX : x,
           y: Number.isFinite(pageY) ? pageY : y,
           width,
           height,
         });
-      });
+      };
+
+      if (measureTarget) {
+        measureTarget.measure(handleMeasure);
+      } else if (legacyMeasure && legacyReactTag != null) {
+        legacyMeasure(legacyReactTag, handleMeasure);
+      }
     } catch {
       resolve(undefined);
     }
   });
+}
+
+function getMeasurableHostInstance(
+  hostInstance: unknown
+): MeasurableHostInstance | null {
+  if (!hostInstance || typeof hostInstance !== 'object') {
+    return null;
+  }
+
+  const canonical = getObjectValue(hostInstance, 'canonical');
+  const node = getObjectValue(hostInstance, 'node');
+  const publicInstance = getObjectValue(canonical, 'publicInstance');
+  const canonicalNode = getObjectValue(canonical, 'node');
+
+  for (const candidate of [
+    hostInstance,
+    publicInstance,
+    canonical,
+    node,
+    canonicalNode,
+  ]) {
+    if (isMeasurableHostInstance(candidate)) {
+      return candidate;
+    }
+  }
+
+  return null;
+}
+
+function isMeasurableHostInstance(
+  value: unknown
+): value is MeasurableHostInstance {
+  return (
+    !!value &&
+    typeof value === 'object' &&
+    typeof (value as Partial<MeasurableHostInstance>).measure === 'function'
+  );
+}
+
+function getLegacyMeasure(): LegacyMeasure | null {
+  const legacyUIManager = UIManager as unknown as {
+    measure?: LegacyMeasure;
+  };
+
+  return typeof legacyUIManager.measure === 'function'
+    ? legacyUIManager.measure.bind(legacyUIManager)
+    : null;
 }
 
 function getReactTag(
