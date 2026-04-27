@@ -10,6 +10,8 @@ This repository publishes three npm packages:
 
 Publishing runs from `.github/workflows/publish.yml` on pushes to `main`. The workflow uses the repository `NPM_TOKEN` secret through `NODE_AUTH_TOKEN` and publishes with npm provenance enabled.
 
+Before publishing scoped packages, the npm scope `@react-native-scalable-debugger` must exist and the `NPM_TOKEN` must have publish access to that scope. npm returns `Scope not found` when the scope is missing or the token cannot publish to it.
+
 ## Version Policy
 
 The initial publish version is `0.0.1`. If a package does not exist on npm yet, the publish helper uses `0.0.1` for that package. If a package already exists on npm, the helper bumps only that package to the next patch version before publishing.
@@ -42,6 +44,12 @@ Use `--assume-published` to simulate patch-bump behavior for packages that alrea
 
 ```sh
 node scripts/publish-changed-packages.mjs --base HEAD~1 --head HEAD --dry-run --assume-published
+```
+
+Use `--assume-published-current` to simulate a retry where the same commit was already published and only tags need to be restored:
+
+```sh
+node scripts/publish-changed-packages.mjs --base HEAD~1 --head HEAD --dry-run --assume-published-current
 ```
 
 ## Release Checks

@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "repository": {
     "type": "git",
-    "url": "https://github.com/JoonDong2/react-native-scalable-debugger",
+    "url": "git+https://github.com/JoonDong2/react-native-scalable-debugger.git",
     "directory": "packages/network-plugin"
   },
   "main": "dist/index.js",

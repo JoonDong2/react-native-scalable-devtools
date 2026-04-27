@@ -30,13 +30,15 @@ const PACKAGES = [
 
 const options = parseArgs(process.argv.slice(2));
 
-main().catch((error) => {
+try {
+  main();
+} catch (error) {
   console.error(error instanceof Error ? error.message : String(error));
   process.exit(1);
-});
+}
 
-async function main() {
-  const head = options.head ?? process.env.GITHUB_SHA ?? 'HEAD';
+function main() {
+  const head = resolveHead(options.head ?? process.env.GITHUB_SHA ?? 'HEAD');
   const base = resolveBase(options.base ?? process.env.GITHUB_EVENT_BEFORE, head);
   const changedFiles = getChangedFiles(base, head);
   const changedPackages = PACKAGES.filter((pkg) =>
@@ -62,18 +64,12 @@ async function main() {
     throw new Error('NODE_AUTH_TOKEN is required to publish packages.');
   }
 
-  const publishedPackages = [];
-
-  for (const pkg of changedPackages) {
-    const result = publishPackage(pkg);
-    publishedPackages.push(result);
-  }
-
+  const publishResults = changedPackages.map((pkg) => publishPackage(pkg));
   commitVersionBumps();
 
-  log('Published packages:');
-  for (const published of publishedPackages) {
-    log(`- ${published.name}@${published.version}`);
+  log('Publish results:');
+  for (const result of publishResults) {
+    log(`- ${result.name}@${result.version}${result.skipped ? ' (already published)' : ''}`);
   }
 }
 
@@ -82,14 +78,27 @@ function publishPackage(pkg) {
   const packageJsonPath = path.join(packageDirectory, 'package.json');
   const packageJson = readPackageJson(packageJsonPath);
   const currentVersion = packageJson.version;
-  const publishedVersion = getPublishedVersion(pkg.name);
-  const nextVersion = publishedVersion
-    ? incrementPatch(maxVersion(currentVersion, publishedVersion))
+  const publishedInfo = getPublishedPackageInfo(pkg.name);
+
+  if (publishedInfo?.gitHead === options.resolvedHead) {
+    log(
+      `${pkg.name}: ${publishedInfo.version} is already published for ${options.resolvedHead}; ensuring tag only`
+    );
+    createPackageTag(pkg.name, publishedInfo.version);
+    return {
+      name: pkg.name,
+      version: publishedInfo.version,
+      skipped: true,
+    };
+  }
+
+  const nextVersion = publishedInfo
+    ? incrementPatch(maxVersion(currentVersion, publishedInfo.version))
     : INITIAL_VERSION;
 
   log(
-    publishedVersion
-      ? `${pkg.name}: npm latest is ${publishedVersion}; publishing ${nextVersion}`
+    publishedInfo
+      ? `${pkg.name}: npm latest is ${publishedInfo.version}; publishing ${nextVersion}`
       : `${pkg.name}: not found on npm; publishing ${nextVersion}`
   );
 
@@ -103,9 +112,7 @@ function publishPackage(pkg) {
   }
 
   if (options.dryRun) {
-    log(
-      `[dry-run] npm publish --provenance --access public (${pkg.directory})`
-    );
+    log(`[dry-run] npm publish --provenance --access public (${pkg.directory})`);
   } else {
     run('npm', ['publish', '--provenance', '--access', 'public'], {
       cwd: packageDirectory,
@@ -122,6 +129,7 @@ function publishPackage(pkg) {
   return {
     name: pkg.name,
     version: nextVersion,
+    skipped: false,
   };
 }
 
@@ -133,7 +141,8 @@ function createPackageTag(packageName, version) {
   }
 
   if (gitRefExists(`refs/tags/${tagName}`)) {
-    throw new Error(`Tag already exists: ${tagName}`);
+    log(`Tag already exists: ${tagName}`);
+    return;
   }
 
   run('git', ['tag', '-a', tagName, '-m', tagName]);
@@ -175,22 +184,41 @@ function getChangedFiles(base, head) {
     .filter(Boolean);
 }
 
-function getPublishedVersion(packageName) {
+function getPublishedPackageInfo(packageName) {
   if (options.dryRun) {
+    if (options.assumePublishedCurrent) {
+      return {
+        version: getCurrentPackageVersion(packageName),
+        gitHead: options.resolvedHead,
+      };
+    }
     if (options.assumePublished) {
-      return readPackageJson(
-        path.join(REPO_ROOT, getPackage(packageName).directory, 'package.json')
-      ).version;
+      return {
+        version: getCurrentPackageVersion(packageName),
+        gitHead: 'previous-published-commit',
+      };
     }
     return undefined;
   }
 
   try {
-    const output = run('npm', ['view', packageName, 'version', '--json'], {
+    const output = run('npm', ['view', packageName, 'version', 'gitHead', '--json'], {
       stdio: 'pipe',
     });
     const value = JSON.parse(output.trim());
-    return typeof value === 'string' ? value : undefined;
+    if (typeof value === 'string') {
+      return {
+        version: value,
+        gitHead: undefined,
+      };
+    }
+    if (value && typeof value.version === 'string') {
+      return {
+        version: value.version,
+        gitHead: typeof value.gitHead === 'string' ? value.gitHead : undefined,
+      };
+    }
+    return undefined;
   } catch (error) {
     const text = [
       error.stdout?.toString('utf8'),
@@ -204,6 +232,18 @@ function getPublishedVersion(packageName) {
     }
     throw error;
   }
+}
+
+function getCurrentPackageVersion(packageName) {
+  return readPackageJson(
+    path.join(REPO_ROOT, getPackage(packageName).directory, 'package.json')
+  ).version;
+}
+
+function resolveHead(head) {
+  const resolved = run('git', ['rev-parse', head]).trim();
+  options.resolvedHead = resolved;
+  return resolved;
 }
 
 function resolveBase(base, head) {
@@ -292,6 +332,8 @@ function parseArgs(argv) {
     head: undefined,
     dryRun: false,
     assumePublished: false,
+    assumePublishedCurrent: false,
+    resolvedHead: undefined,
   };
 
   for (let index = 0; index < argv.length; index += 1) {
@@ -308,6 +350,8 @@ function parseArgs(argv) {
       parsed.dryRun = true;
     } else if (arg === '--assume-published') {
       parsed.assumePublished = true;
+    } else if (arg === '--assume-published-current') {
+      parsed.assumePublishedCurrent = true;
     } else if (arg === '--help' || arg === '-h') {
       printHelpAndExit();
     } else {
@@ -352,11 +396,12 @@ function printHelpAndExit() {
   console.log(`Usage: node scripts/publish-changed-packages.mjs [options]
 
 Options:
-  --base <sha>           Base git ref for changed-file detection.
-  --head <sha>           Head git ref for changed-file detection. Default: HEAD.
-  --dry-run              Print planned publish actions without changing files or npm.
-  --assume-published     In dry-run mode, simulate packages as already published.
-  -h, --help             Show this help.
+  --base <sha>                    Base git ref for changed-file detection.
+  --head <sha>                    Head git ref for changed-file detection. Default: HEAD.
+  --dry-run                       Print planned publish actions without changing files or npm.
+  --assume-published              In dry-run mode, simulate packages as already published by an older commit.
+  --assume-published-current      In dry-run mode, simulate packages as already published by the current commit.
+  -h, --help                      Show this help.
 `);
   process.exit(0);
 }
