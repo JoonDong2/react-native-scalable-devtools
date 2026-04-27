@@ -1,6 +1,6 @@
 {
   "name": "@react-native-scalable-debugger/element-inspector-plugin",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
@@ -36,7 +36,7 @@
     "ws": "*"
   },
   "devDependencies": {
-    "react-native-scalable-debugger": "0.1.0"
+    "react-native-scalable-debugger": "0.0.1"
   },
   "license": "MIT"
 }
