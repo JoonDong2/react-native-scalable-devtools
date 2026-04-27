@@ -46,7 +46,7 @@ module.exports = {
 curl -s "http://localhost:8081/apps"
 ```
 
-이 endpoint는 연결된 React Native 앱 목록과 plugin endpoint에서 사용할 `appId`를 반환합니다.
+이 endpoint는 연결된 React Native 앱 목록, plugin endpoint에서 사용할 `appId`, 그리고 확인 가능한 경우 `deviceInfo.deviceId` 같은 기기 metadata를 반환합니다.
 
 응답 예시:
 
@@ -58,6 +58,7 @@ curl -s "http://localhost:8081/apps"
       "appId": "skw4tbpgjn",
       "name": "Pixel 8",
       "deviceInfo": {
+        "deviceId": "emulator-5554",
         "platform": "android",
         "os": "android",
         "deviceName": "Pixel 8",
@@ -72,7 +73,7 @@ curl -s "http://localhost:8081/apps"
 }
 ```
 
-모든 외부 요청의 selector는 `appId`입니다.
+모든 외부 요청의 selector는 `appId`입니다. `deviceInfo.deviceId`는 Maestro 같은 외부 자동화 도구를 위한 metadata입니다. 서버는 앱 런타임이 보낸 값이 있으면 그 값을 사용하고, 없으면 `adb devices -l`, `xcrun simctl`, `xcrun devicectl`, `xcrun xctrace` 같은 host 도구로 보강합니다. Android 또는 iOS 기기 식별자를 확인할 수 없으면 `deviceInfo.deviceId`는 `"unknown"`으로 설정됩니다.
 
 ## `GET /element-inspector`
 

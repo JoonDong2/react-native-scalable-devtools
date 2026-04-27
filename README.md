@@ -46,7 +46,7 @@ The core AppProxy provides:
 curl -s "http://localhost:8081/apps"
 ```
 
-This returns the connected React Native apps and the `appId` values to use with plugin endpoints.
+This returns the connected React Native apps, the `appId` values to use with plugin endpoints, and device metadata such as `deviceInfo.deviceId`.
 
 Example shape:
 
@@ -58,6 +58,7 @@ Example shape:
       "appId": "skw4tbpgjn",
       "name": "Pixel 8",
       "deviceInfo": {
+        "deviceId": "emulator-5554",
         "platform": "android",
         "os": "android",
         "deviceName": "Pixel 8",
@@ -72,7 +73,15 @@ Example shape:
 }
 ```
 
-`appId` is the selector for all external requests.
+`appId` is the selector for all external requests. `deviceInfo.deviceId` is metadata for external automation tools such as Maestro.
+
+Device identifiers are resolved in this order:
+
+1. The app runtime reports `deviceInfo.deviceId` from React Native `Platform.constants` when a native identifier is available.
+2. If the runtime does not provide an identifier, the server enriches `/apps` from host-side tools. Android uses `adb devices -l`; iOS uses `xcrun simctl list --json devices booted` for simulators and `xcrun devicectl list devices --json-output -` or `xcrun xctrace list devices` for physical devices.
+3. Host devices are matched to the connected app by comparable runtime metadata such as device name, model, and OS version. If there is only one host device for the app platform, that device id is used as the fallback match.
+
+When no Android or iOS device identifier can be resolved, `deviceInfo.deviceId` is set to `"unknown"`.
 
 ## `GET /element-inspector`
 
