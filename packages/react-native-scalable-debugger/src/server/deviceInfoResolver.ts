@@ -26,14 +26,14 @@ let hostDeviceInfoCache: CachedHostDeviceInfo | null = null;
 export async function enrichAppTargetsWithDeviceInfo(
   targets: readonly ConnectedAppTarget[]
 ): Promise<ConnectedAppTarget[]> {
-  if (targets.every((target) => target.deviceInfo?.deviceId)) {
+  if (targets.every((target) => isKnownDeviceId(target.deviceInfo?.deviceId))) {
     return [...targets];
   }
 
   const hostDeviceInfo = await getHostDeviceInfo();
 
   return targets.map((target) => {
-    if (target.deviceInfo?.deviceId) {
+    if (isKnownDeviceId(target.deviceInfo?.deviceId)) {
       return target;
     }
 
@@ -56,6 +56,14 @@ function shouldIncludeUnknownDeviceId(
   deviceInfo: ConnectedAppDeviceInfo | undefined
 ): boolean {
   return deviceInfo?.platform === 'android' || deviceInfo?.platform === 'ios';
+}
+
+function isKnownDeviceId(deviceId: string | undefined): boolean {
+  return !!deviceId && !isPlaceholderDeviceId(deviceId);
+}
+
+function isPlaceholderDeviceId(deviceId: string): boolean {
+  return deviceId.trim().toLowerCase() === UNKNOWN_DEVICE_ID;
 }
 
 function resolveHostDeviceId(

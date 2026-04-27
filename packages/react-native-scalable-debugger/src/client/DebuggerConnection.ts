@@ -174,7 +174,11 @@ function getRuntimeDeviceId(
     'serial',
     'Serial',
   ]);
-  return value;
+  return isPlaceholderDeviceId(value) ? undefined : value;
+}
+
+function isPlaceholderDeviceId(value: string | undefined): boolean {
+  return value?.trim().toLowerCase() === 'unknown';
 }
 
 function getReactNativeVersion(
