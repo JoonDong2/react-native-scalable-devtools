@@ -16,6 +16,7 @@ const MAX_PROP_KEYS = 40;
 const MAX_ARRAY_ITEMS = 40;
 const MAX_STRING_LENGTH = 300;
 const MAX_PROP_DEPTH = 2;
+const MAX_STYLE_DEPTH = 8;
 
 interface CollectContext {
   visited: Set<ReactFiberLike>;
@@ -347,7 +348,10 @@ function sanitizeProps(
       continue;
     }
 
-    const value = sanitizeValue(props[key], 0);
+    const value =
+      key === 'style'
+        ? sanitizeStyleValue(props[key])
+        : sanitizeValue(props[key], 0);
     if (value !== undefined) {
       sanitized[key] = value;
     }
@@ -356,7 +360,16 @@ function sanitizeProps(
   return Object.keys(sanitized).length > 0 ? sanitized : undefined;
 }
 
-function sanitizeValue(value: unknown, depth: number): JSONValue | undefined {
+function sanitizeStyleValue(value: unknown): JSONValue | undefined {
+  return sanitizeValue(value, 0, MAX_STYLE_DEPTH, new WeakSet<object>());
+}
+
+function sanitizeValue(
+  value: unknown,
+  depth: number,
+  maxDepth = MAX_PROP_DEPTH,
+  seen?: WeakSet<object>
+): JSONValue | undefined {
   if (value == null) {
     return null;
   }
@@ -373,16 +386,21 @@ function sanitizeValue(value: unknown, depth: number): JSONValue | undefined {
   if (typeof value === 'function' || typeof value === 'symbol') {
     return undefined;
   }
-  if (depth >= MAX_PROP_DEPTH) {
+  if (depth >= maxDepth) {
     return '[Object]';
   }
   if (Array.isArray(value)) {
     return value
       .slice(0, MAX_ARRAY_ITEMS)
-      .map((item) => sanitizeValue(item, depth + 1))
+      .map((item) => sanitizeValue(item, depth + 1, maxDepth, seen))
       .filter((item): item is JSONValue => item !== undefined);
   }
   if (typeof value === 'object') {
+    if (seen?.has(value)) {
+      return '[Circular]';
+    }
+    seen?.add(value);
+
     const output: Record<string, JSONValue> = {};
     for (const key of Object.keys(value as Record<string, unknown>).slice(
       0,
@@ -393,12 +411,15 @@ function sanitizeValue(value: unknown, depth: number): JSONValue | undefined {
       }
       const childValue = sanitizeValue(
         (value as Record<string, unknown>)[key],
-        depth + 1
+        depth + 1,
+        maxDepth,
+        seen
       );
       if (childValue !== undefined) {
         output[key] = childValue;
       }
     }
+    seen?.delete(value);
     return output;
   }
 
