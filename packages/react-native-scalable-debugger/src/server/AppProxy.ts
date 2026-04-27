@@ -82,10 +82,6 @@ const createAppProxyMiddleware = (): Record<string, WebSocketServer> => {
     // WHATWG URL API 사용. req.url은 상대 경로이므로 더미 origin을 붙인다.
     const searchParams = new URL(req.url || "", "http://localhost").searchParams;
     const appId = searchParams.get("id") || fallbackDeviceId;
-    const nativeAppId =
-      getSearchParam(searchParams, "nativeAppId") ||
-      getSearchParam(searchParams, "bundleId") ||
-      getSearchParam(searchParams, "applicationId");
     const deviceId = searchParams.get("deviceId") || appId;
     const deviceInfo = readDeviceInfo(searchParams);
     const name =
@@ -96,7 +92,6 @@ const createAppProxyMiddleware = (): Record<string, WebSocketServer> => {
 
     idToAppConnection.set(appId, {
       appId,
-      nativeAppId,
       deviceId,
       name,
       deviceInfo,
@@ -224,7 +219,6 @@ const createConnectedAppTarget = (
   connection: AppConnection
 ): ConnectedAppTarget => ({
   appId: connection.appId,
-  nativeAppId: connection.nativeAppId,
   deviceId: connection.deviceId,
   name: connection.name,
   deviceInfo: connection.deviceInfo,
@@ -235,7 +229,6 @@ const createConnectedAppTarget = (
 
 const toPublicAppInfo = (target: ConnectedAppTarget) => ({
   appId: target.appId,
-  nativeAppId: target.nativeAppId,
   name: target.name,
   deviceInfo: target.deviceInfo,
   connected: target.connected,
@@ -332,7 +325,6 @@ const setDebuggerConnection = (
   metadata: {
     deviceId?: string;
     name?: string;
-    nativeAppId?: string;
   } = {}
 ): void => {
   const appConnection = idToAppConnection.get(appId);
@@ -341,7 +333,6 @@ const setDebuggerConnection = (
       ...appConnection,
       deviceId: metadata.deviceId ?? appConnection.deviceId,
       name: metadata.name ?? appConnection.name,
-      nativeAppId: metadata.nativeAppId ?? appConnection.nativeAppId,
       deviceInfo: {
         ...appConnection.deviceInfo,
         deviceName: metadata.name ?? appConnection.deviceInfo?.deviceName,

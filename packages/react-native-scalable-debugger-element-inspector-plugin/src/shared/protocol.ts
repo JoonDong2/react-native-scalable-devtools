@@ -14,7 +14,6 @@ export type JSONValue =
 
 export interface ElementInspectorDevice {
   appId: string;
-  nativeAppId?: string;
   name: string;
   connected: boolean;
   connectedAt: number;

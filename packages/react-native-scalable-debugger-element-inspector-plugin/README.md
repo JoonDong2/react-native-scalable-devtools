@@ -33,7 +33,7 @@ The `/apps` endpoint is provided by `react-native-scalable-debugger`:
 curl -s "http://localhost:8081/apps"
 ```
 
-It returns connected app metadata such as `appId`, `nativeAppId`, `name`, `deviceInfo`, `connected`, `connectedAt`, and `hasDebugger`. Use `appId` for element inspector requests.
+It returns connected app metadata such as `appId`, `name`, `deviceInfo`, `connected`, `connectedAt`, and `hasDebugger`. Use `appId` for element inspector requests.
 
 ## `GET /element-inspector`
 

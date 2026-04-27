@@ -20,7 +20,6 @@ class JSApp extends Domain {
       AppProxy.setDebuggerConnection(appId, connection.debugger, {
         deviceId: connection.device.id,
         name: connection.device.name,
-        nativeAppId: connection.device.appId,
       });
 
       return Domain.BLOCK;

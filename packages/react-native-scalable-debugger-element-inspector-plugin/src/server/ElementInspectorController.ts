@@ -234,7 +234,6 @@ export class ElementInspectorController {
 
 function toElementInspectorDevice(target: {
   appId: string;
-  nativeAppId?: string;
   name: string;
   connected: boolean;
   connectedAt: number;
@@ -242,7 +241,6 @@ function toElementInspectorDevice(target: {
 }): ElementInspectorDevice {
   return {
     appId: target.appId,
-    nativeAppId: target.nativeAppId,
     name: target.name,
     connected: target.connected,
     connectedAt: target.connectedAt,

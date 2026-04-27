@@ -56,7 +56,6 @@ Example shape:
   "apps": [
     {
       "appId": "skw4tbpgjn",
-      "nativeAppId": "com.example.myapp",
       "name": "Pixel 8",
       "deviceInfo": {
         "platform": "android",

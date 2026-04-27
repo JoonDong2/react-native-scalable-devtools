@@ -78,7 +78,6 @@ export type CreateCustomMessageHandlerFn = (
  */
 export interface AppConnection {
   appId: string;
-  nativeAppId?: string;
   deviceId: string;
   name: string;
   deviceInfo?: ConnectedAppDeviceInfo;
@@ -106,7 +105,6 @@ export interface ConnectedAppDeviceInfo {
  */
 export interface ConnectedAppTarget {
   appId: string;
-  nativeAppId?: string;
   deviceId: string;
   name: string;
   deviceInfo?: ConnectedAppDeviceInfo;
