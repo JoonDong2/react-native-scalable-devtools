@@ -36,6 +36,9 @@
     "README.md",
     "README.ko.md"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json && rollup -c",
     "build:types": "tsc -p tsconfig.json --emitDeclarationOnly",

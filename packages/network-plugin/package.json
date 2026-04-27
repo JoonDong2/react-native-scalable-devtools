@@ -37,7 +37,7 @@
     "react-native-scalable-debugger": "*"
   },
   "devDependencies": {
-    "react-native-scalable-debugger": "0.0.1"
+    "react-native-scalable-debugger": "*"
   },
   "license": "MIT"
 }

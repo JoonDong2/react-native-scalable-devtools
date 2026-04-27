@@ -10,6 +10,10 @@
 - `@react-native-scalable-debugger/network-plugin`: HTTP와 WebSocket 트래픽을 위한 네트워크 패널 지원.
 - `@react-native-scalable-debugger/element-inspector-plugin`: 연결된 React Native 앱의 엘리먼트 트리 스냅샷을 REST/WebSocket으로 제공.
 
+## 배포
+
+Package는 `main` branch push 시 GitHub Actions에서 npm으로 배포됩니다. Workflow는 각 package directory 아래에 변경이 있는 package만 배포합니다. Versioning과 release rule은 [Publishing](docs/publishing.ko.md)을 참고하세요.
+
 ## 사용법
 
 ```js

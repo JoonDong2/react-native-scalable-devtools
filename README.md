@@ -10,6 +10,10 @@ Monorepo for a plugin-oriented React Native debugger server. It provides a repla
 - `@react-native-scalable-debugger/network-plugin`: Network panel support for HTTP and WebSocket traffic.
 - `@react-native-scalable-debugger/element-inspector-plugin`: REST/WebSocket element tree snapshots for connected React Native apps.
 
+## Publishing
+
+Packages are published by GitHub Actions on pushes to `main`. The workflow publishes only packages with changes under their package directory. See [Publishing](docs/publishing.md) for the versioning and release rules.
+
 ## Usage
 
 ```js
