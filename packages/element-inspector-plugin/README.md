@@ -49,6 +49,7 @@ Supported query parameters:
 - `start`: optional component name to use as the response root. Matching uses `displayName` when a component defines one, otherwise `type`. The tree is searched with DFS from the root, visiting children from right to left, and the first matching node becomes the returned root. If no node matches, an empty tree is returned.
 - `compact`: pass `1` to prune zero-size nodes, flatten simple React Native wrapper pairs, flatten top-level `props.style` arrays into one object, and keep only `type`, `displayName`, `layout`, `text`, `props.style`, `source`, and non-empty `children` on tree nodes.
 - `plain`: pass `1` to return an indented `text/plain` tree instead of JSON. Plain text node labels use `displayName` when present, otherwise `type`.
+- `layoutPrecision`: number of decimal places to keep in `layout` values. The default is `1`.
 
 Snapshots omit React Native development UI nodes named `DebuggingOverlay` and `LogBoxStateSubscription` in all modes, including the default JSON response.
 
@@ -65,9 +66,10 @@ curl -s "http://localhost:8081/element-inspector?appId=<id>&start=RCTView"
 curl -s "http://localhost:8081/element-inspector?appId=<id>&compact=1"
 curl -s "http://localhost:8081/element-inspector?appId=<id>&plain=1"
 curl -s "http://localhost:8081/element-inspector?appId=<id>&compact=1&plain=1"
+curl -s "http://localhost:8081/element-inspector?appId=<id>&layoutPrecision=2"
 ```
 
-Plain output uses two spaces per depth and renders each node as `Type "text" [x,y,width,height] style={...}` when text, layout, and style props are available. The `style` field uses a compact representation that omits quotes around identifier-like keys.
+Plain output uses two spaces per depth and renders each node as `Type "text" [x,y,width,height] style={...}` when text, layout, and style props are available. The `style` field uses a compact representation that omits quotes around identifier-like keys. `layout` values use the same decimal precision as the JSON response and default to one decimal place.
 
 ```text
 RCTView [0,0,390,844]

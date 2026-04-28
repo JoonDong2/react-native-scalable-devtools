@@ -103,6 +103,7 @@ Supported query parameters:
 - `start`: optional component name to use as the response root. Matching uses `displayName` when a component defines one, otherwise `type`. The tree is searched with DFS from the root, visiting children from right to left, and the first matching node becomes the returned root. If no node matches, an empty tree is returned.
 - `compact`: pass `1` to remove zero-size nodes, flatten simple React Native wrapper pairs, flatten top-level `props.style` arrays into one object, and keep only `type`, `displayName`, `layout`, `text`, `props.style`, `source`, and non-empty `children` on tree nodes.
 - `plain`: pass `1` to return an indented `text/plain` tree instead of JSON. Plain text node labels use `displayName` when present, otherwise `type`.
+- `layoutPrecision`: number of decimal places to keep in `layout` values. The default is `1`.
 
 Snapshots omit React Native development UI nodes named `DebuggingOverlay` and `LogBoxStateSubscription` in all modes, including the default JSON response.
 
@@ -117,9 +118,10 @@ curl -s "http://localhost:8081/element-inspector?appId=<appId>&start=RCTView"
 curl -s "http://localhost:8081/element-inspector?appId=<appId>&compact=1"
 curl -s "http://localhost:8081/element-inspector?appId=<appId>&plain=1"
 curl -s "http://localhost:8081/element-inspector?appId=<appId>&compact=1&plain=1"
+curl -s "http://localhost:8081/element-inspector?appId=<appId>&layoutPrecision=2"
 ```
 
-Plain output renders one node per line, with two spaces per depth, layouts formatted as `[x,y,width,height]`, and style props formatted as compact `style={...}` values such as `style={fontSize:18}`.
+Plain output renders one node per line, with two spaces per depth, layouts formatted as `[x,y,width,height]`, and style props formatted as compact `style={...}` values such as `style={fontSize:18}`. `layout` values use the same decimal precision as the JSON response and default to one decimal place.
 
 `GET /element-inspector` asks the app runtime for a fresh snapshot when the request is made. It does not serve a cached element tree. The plugin is intended for tools such as MCP servers and LLM agents that need to inspect the current React Native output from the development host.
 

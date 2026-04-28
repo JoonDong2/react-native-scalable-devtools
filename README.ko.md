@@ -95,6 +95,7 @@ curl -s "http://localhost:8081/element-inspector?appId=<appId>"
 - `start`: response root로 사용할 선택적 component name. Component가 `displayName`을 정의하면 그 값과 비교하고, 없으면 `type`과 비교합니다. tree를 root부터 DFS로 탐색하되 children은 오른쪽부터 방문하며, 처음 일치하는 node를 반환 root로 사용합니다. 일치하는 node가 없으면 빈 tree를 반환합니다.
 - `compact`: `1`을 전달하면 width 또는 height가 0인 node를 제거하고, 단순 React Native wrapper pair를 flatten하며, top-level `props.style` 배열을 하나의 객체로 flatten하고, tree node에 `type`, `displayName`, `layout`, `text`, `props.style`, `source`, 비어 있지 않은 `children`만 남깁니다.
 - `plain`: `1`을 전달하면 JSON 대신 들여쓰기 기반 `text/plain` tree를 반환합니다. Plain text node label은 `displayName`이 있으면 그 값을 사용하고, 없으면 `type`을 사용합니다.
+- `layoutPrecision`: `layout` 값에 남길 소수점 자릿수입니다. 기본값은 `1`입니다.
 
 Snapshot은 기본 JSON response를 포함한 모든 mode에서 `DebuggingOverlay`와 `LogBoxStateSubscription`이라는 React Native 개발 UI node를 생략합니다.
 
@@ -109,9 +110,10 @@ curl -s "http://localhost:8081/element-inspector?appId=<appId>&start=RCTView"
 curl -s "http://localhost:8081/element-inspector?appId=<appId>&compact=1"
 curl -s "http://localhost:8081/element-inspector?appId=<appId>&plain=1"
 curl -s "http://localhost:8081/element-inspector?appId=<appId>&compact=1&plain=1"
+curl -s "http://localhost:8081/element-inspector?appId=<appId>&layoutPrecision=2"
 ```
 
-Plain output은 한 줄에 node 하나를 렌더링하고, depth마다 두 칸을 들여쓰며, layout은 `[x,y,width,height]` 형식으로 표시하고, style prop은 `style={fontSize:18}` 같은 compact `style={...}` 값으로 표시합니다.
+Plain output은 한 줄에 node 하나를 렌더링하고, depth마다 두 칸을 들여쓰며, layout은 `[x,y,width,height]` 형식으로 표시하고, style prop은 `style={fontSize:18}` 같은 compact `style={...}` 값으로 표시합니다. `layout` 값은 JSON response와 같은 소수점 자릿수를 사용하고, 기본값은 소수점 첫째 자리입니다.
 
 `GET /element-inspector`는 요청 시점에 앱 런타임에 새 스냅샷을 요청합니다. 캐시된 엘리먼트 트리를 반환하지 않습니다. 이 플러그인은 MCP 서버나 LLM agent가 개발 호스트에서 현재 React Native 결과물을 확인하기 위한 용도입니다.
 

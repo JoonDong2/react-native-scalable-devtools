@@ -4,7 +4,7 @@ import type {
 } from 'react-native-scalable-debugger/plugin';
 import type { IncomingMessage, ServerResponse } from 'http';
 import type { ElementInspectorController } from './ElementInspectorController';
-import type { ElementInspectorNode } from '../shared/protocol';
+import type { ElementInspectorLayout, ElementInspectorNode } from '../shared/protocol';
 import { compactElementTree } from './compactElementTree';
 import { renderElementTreeText } from './renderElementTreeText';
 import { stringifyJson } from '../shared/stringifyJson';
@@ -14,8 +14,16 @@ const SUPPORTED_QUERY_PARAMS = new Set([
   'start',
   'compact',
   'plain',
+  'layoutPrecision',
 ]);
-const SUPPORTED_QUERY_PARAMS_MESSAGE = 'appId, start, compact, and plain';
+const SUPPORTED_QUERY_PARAMS_MESSAGE =
+  'appId, start, compact, plain, and layoutPrecision';
+const DEFAULT_LAYOUT_PRECISION = 1;
+
+interface LayoutTreeNode {
+  layout?: ElementInspectorLayout;
+  children?: LayoutTreeNode[];
+}
 
 export function createElementInspectorMiddleware(
   controller: ElementInspectorController
@@ -55,6 +63,9 @@ export function createElementInspectorMiddleware(
     const compact = parseModeFlag(requestUrl.searchParams.get('compact'));
     const plain = parseModeFlag(requestUrl.searchParams.get('plain'));
     const start = parseStartType(requestUrl.searchParams.get('start'));
+    const layoutPrecision = parseLayoutPrecision(
+      requestUrl.searchParams.get('layoutPrecision')
+    );
     const result = await controller.requestSnapshot(context, {
       appId: requestUrl.searchParams.get('appId') ?? undefined,
     });
@@ -68,6 +79,7 @@ export function createElementInspectorMiddleware(
         compact && startedRoot
           ? compactElementTree(startedRoot) ?? undefined
           : startedRoot;
+      normalizeLayoutPrecision(snapshotRoot, layoutPrecision);
 
       if (plain) {
         writeText(
@@ -108,6 +120,13 @@ function parseStartType(value: string | null): string | undefined {
   return trimmed ? trimmed : undefined;
 }
 
+function parseLayoutPrecision(value: string | null): number {
+  const parsed = value == null ? NaN : Number.parseInt(value, 10);
+  return Number.isInteger(parsed) && parsed >= 0
+    ? parsed
+    : DEFAULT_LAYOUT_PRECISION;
+}
+
 function findStartNode(
   root: ElementInspectorNode,
   type: string
@@ -126,6 +145,34 @@ function findStartNode(
   }
 
   return undefined;
+}
+
+function normalizeLayoutPrecision(
+  node: LayoutTreeNode | undefined,
+  precision: number
+): void {
+  if (!node) {
+    return;
+  }
+
+  const factor = 10 ** precision;
+  const layout = node.layout;
+  if (layout) {
+    node.layout = {
+      x: roundLayoutValue(layout.x, factor),
+      y: roundLayoutValue(layout.y, factor),
+      width: roundLayoutValue(layout.width, factor),
+      height: roundLayoutValue(layout.height, factor),
+    };
+  }
+
+  for (const child of node.children ?? []) {
+    normalizeLayoutPrecision(child, precision);
+  }
+}
+
+function roundLayoutValue(value: number, factor: number): number {
+  return Math.round(value * factor) / factor;
 }
 
 function withoutStatusCode<T extends { statusCode: number }>(
