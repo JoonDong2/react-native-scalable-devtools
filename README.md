@@ -100,8 +100,10 @@ Use `GET /apps` first, then pass the selected `appId`. If only one app is connec
 Supported query parameters:
 
 - `appId`: connected app id from `GET /apps`.
-- `compact`: pass `1` to remove zero-size nodes and `DebuggingOverlay`, flatten simple React Native wrapper pairs, and keep only `type`, `layout`, `text`, `props.style`, `source`, and non-empty `children` on tree nodes.
+- `compact`: pass `1` to remove zero-size nodes, flatten simple React Native wrapper pairs, and keep only `type`, `layout`, `text`, `props.style`, `source`, and non-empty `children` on tree nodes.
 - `plain`: pass `1` to return an indented `text/plain` tree instead of JSON.
+
+Snapshots omit React Native development UI nodes named `DebuggingOverlay` and `LogBoxStateSubscription` in all modes, including the default JSON response.
 
 Unsupported query parameters are rejected. `listDevices=1` is not supported; use `GET /apps` instead.
 

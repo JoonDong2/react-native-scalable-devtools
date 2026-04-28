@@ -46,8 +46,10 @@ curl -s "http://localhost:8081/element-inspector?appId=<id>"
 지원하는 query parameter:
 
 - `appId`: `GET /apps`에서 얻은 연결된 앱 ID.
-- `compact`: `1`을 전달하면 width 또는 height가 0인 node와 `DebuggingOverlay`를 제거하고, 단순 React Native wrapper pair를 flatten하며, tree node에 `type`, `layout`, `text`, `props.style`, `source`, 비어 있지 않은 `children`만 남깁니다.
+- `compact`: `1`을 전달하면 width 또는 height가 0인 node를 제거하고, 단순 React Native wrapper pair를 flatten하며, tree node에 `type`, `layout`, `text`, `props.style`, `source`, 비어 있지 않은 `children`만 남깁니다.
 - `plain`: `1`을 전달하면 JSON 대신 들여쓰기 기반 `text/plain` tree를 반환합니다.
+
+Snapshot은 기본 JSON response를 포함한 모든 mode에서 `DebuggingOverlay`와 `LogBoxStateSubscription`이라는 React Native 개발 UI node를 생략합니다.
 
 `GET /element-inspector`는 항상 앱 런타임에 새 스냅샷을 요청합니다. 캐시된 element tree를 반환하지 않습니다.
 

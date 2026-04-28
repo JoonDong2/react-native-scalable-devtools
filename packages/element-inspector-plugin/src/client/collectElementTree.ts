@@ -15,6 +15,10 @@ const MAX_ARRAY_ITEMS = 40;
 const MAX_STRING_LENGTH = 300;
 const MAX_PROP_DEPTH = 2;
 const MAX_STYLE_DEPTH = 8;
+const IGNORED_ELEMENT_NAMES = new Set([
+  'DebuggingOverlay',
+  'LogBoxStateSubscription',
+]);
 
 interface CollectContext {
   visited: Set<ReactFiberLike>;
@@ -129,6 +133,17 @@ async function collectSiblings(
 
   while (stack.length > 0) {
     const item = stack.pop()!;
+    if (context.visited.has(item.fiber)) {
+      continue;
+    }
+
+    const displayName = getDisplayName(item.fiber);
+    if (shouldIgnoreElement(displayName)) {
+      context.visited.add(item.fiber);
+      pushChildFibers(stack, item.fiber, item.parentChildren, item.path);
+      continue;
+    }
+
     const node = fiberToNode(item.fiber, item.path, context);
     if (!node) {
       continue;
@@ -149,13 +164,7 @@ async function collectSiblings(
     if (childFibers.length > 0) {
       const children: PendingLayoutNode[] = [];
       node.children = children;
-      for (let index = childFibers.length - 1; index >= 0; index -= 1) {
-        stack.push({
-          fiber: childFibers[index],
-          parentChildren: children,
-          path: `${item.path}.${index}`,
-        });
-      }
+      pushFibers(stack, childFibers, children, item.path);
     }
   }
 
@@ -168,6 +177,38 @@ async function collectSiblings(
   }
 
   return roots;
+}
+
+function pushChildFibers(
+  stack: Array<{
+    fiber: ReactFiberLike;
+    parentChildren: PendingLayoutNode[];
+    path: string;
+  }>,
+  fiber: ReactFiberLike,
+  parentChildren: PendingLayoutNode[],
+  path: string
+): void {
+  pushFibers(stack, getSiblingFibers(fiber.child ?? null), parentChildren, path);
+}
+
+function pushFibers(
+  stack: Array<{
+    fiber: ReactFiberLike;
+    parentChildren: PendingLayoutNode[];
+    path: string;
+  }>,
+  fibers: ReactFiberLike[],
+  parentChildren: PendingLayoutNode[],
+  path: string
+): void {
+  for (let index = fibers.length - 1; index >= 0; index -= 1) {
+    stack.push({
+      fiber: fibers[index],
+      parentChildren,
+      path: `${path}.${index}`,
+    });
+  }
 }
 
 function fiberToNode(
@@ -218,6 +259,10 @@ function getSiblingFibers(fiber: ReactFiberLike | null): ReactFiberLike[] {
     cursor = cursor.sibling;
   }
   return fibers;
+}
+
+function shouldIgnoreElement(displayName: string): boolean {
+  return IGNORED_ELEMENT_NAMES.has(displayName);
 }
 
 function getProps(

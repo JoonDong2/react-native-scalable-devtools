@@ -16,7 +16,10 @@ export interface CompactElementInspectorNode {
   children?: CompactElementInspectorNode[];
 }
 
-const DEBUGGING_OVERLAY_NAMES = new Set(['DebuggingOverlay']);
+const IGNORED_ELEMENT_NAMES = new Set([
+  'DebuggingOverlay',
+  'LogBoxStateSubscription',
+]);
 const TEXT_HOST_TYPES = new Set(['RCTText', 'TextImplLegacy']);
 
 export function compactElementTree(
@@ -61,13 +64,13 @@ function compactNode(
 }
 
 function shouldRemoveNode(node: ElementInspectorNode): boolean {
-  return isDebuggingOverlay(node) || hasZeroSize(node.layout);
+  return isIgnoredElementNode(node) || hasZeroSize(node.layout);
 }
 
-function isDebuggingOverlay(node: ElementInspectorNode): boolean {
+function isIgnoredElementNode(node: ElementInspectorNode): boolean {
   return (
-    DEBUGGING_OVERLAY_NAMES.has(node.type) ||
-    (node.displayName != null && DEBUGGING_OVERLAY_NAMES.has(node.displayName))
+    IGNORED_ELEMENT_NAMES.has(node.type) ||
+    (node.displayName != null && IGNORED_ELEMENT_NAMES.has(node.displayName))
   );
 }
 

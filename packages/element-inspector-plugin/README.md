@@ -46,8 +46,10 @@ curl -s "http://localhost:8081/element-inspector?appId=<id>"
 Supported query parameters:
 
 - `appId`: connected app id from `GET /apps`.
-- `compact`: pass `1` to prune zero-size nodes and `DebuggingOverlay`, flatten simple React Native wrapper pairs, and keep only `type`, `layout`, `text`, `props.style`, `source`, and non-empty `children` on tree nodes.
+- `compact`: pass `1` to prune zero-size nodes, flatten simple React Native wrapper pairs, and keep only `type`, `layout`, `text`, `props.style`, `source`, and non-empty `children` on tree nodes.
 - `plain`: pass `1` to return an indented `text/plain` tree instead of JSON.
+
+Snapshots omit React Native development UI nodes named `DebuggingOverlay` and `LogBoxStateSubscription` in all modes, including the default JSON response.
 
 `GET /element-inspector` always asks the app runtime for a fresh snapshot. It does not return a cached element tree.
 
