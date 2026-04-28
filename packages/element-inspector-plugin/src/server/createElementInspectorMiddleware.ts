@@ -4,8 +4,16 @@ import type {
 } from 'react-native-scalable-debugger/plugin';
 import type { IncomingMessage, ServerResponse } from 'http';
 import type { ElementInspectorController } from './ElementInspectorController';
+import { compactElementTree } from './compactElementTree';
+import { renderElementTreeText } from './renderElementTreeText';
 
-const SUPPORTED_QUERY_PARAMS = new Set(['appId', 'timeoutMs']);
+const SUPPORTED_QUERY_PARAMS = new Set([
+  'appId',
+  'timeoutMs',
+  'compact',
+  'plain',
+]);
+const SUPPORTED_QUERY_PARAMS_MESSAGE = 'appId, timeoutMs, compact, and plain';
 
 export function createElementInspectorMiddleware(
   controller: ElementInspectorController
@@ -37,15 +45,44 @@ export function createElementInspectorMiddleware(
         error: 'unsupported_query_param',
         message: `Unsupported element inspector query parameter(s): ${unsupportedQueryParams.join(
           ', '
-        )}. Supported parameters are appId and timeoutMs. Use GET /apps to list connected apps.`,
+        )}. Supported parameters are ${SUPPORTED_QUERY_PARAMS_MESSAGE}. Use GET /apps to list connected apps.`,
       });
       return;
     }
 
+    const compact = parseModeFlag(requestUrl.searchParams.get('compact'));
+    const plain = parseModeFlag(requestUrl.searchParams.get('plain'));
     const result = await controller.requestSnapshot(context, {
       appId: requestUrl.searchParams.get('appId') ?? undefined,
       timeoutMs: parseTimeoutMs(requestUrl.searchParams.get('timeoutMs')),
     });
+
+    if (result.ok) {
+      const snapshotRoot =
+        compact && result.snapshot.root
+          ? compactElementTree(result.snapshot.root) ?? undefined
+          : result.snapshot.root;
+
+      if (plain) {
+        writeText(
+          response,
+          result.statusCode,
+          renderElementTreeText(snapshotRoot)
+        );
+        return;
+      }
+
+      writeJson(response, result.statusCode, {
+        ok: result.ok,
+        device: result.device,
+        snapshot: {
+          ...result.snapshot,
+          root: snapshotRoot,
+        },
+      });
+      return;
+    }
+
     writeJson(response, result.statusCode, withoutStatusCode(result));
   };
 }
@@ -64,6 +101,10 @@ function parseTimeoutMs(value: string | null): number | undefined {
   return Number.isFinite(parsed) ? parsed : undefined;
 }
 
+function parseModeFlag(value: string | null): boolean {
+  return value === '1';
+}
+
 function withoutStatusCode<T extends { statusCode: number }>(
   value: T
 ): Omit<T, 'statusCode'> {
@@ -79,4 +120,14 @@ function writeJson(
   response.statusCode = statusCode;
   response.setHeader('Content-Type', 'application/json; charset=utf-8');
   response.end(JSON.stringify(body));
+}
+
+function writeText(
+  response: ServerResponse,
+  statusCode: number,
+  body: string
+): void {
+  response.statusCode = statusCode;
+  response.setHeader('Content-Type', 'text/plain; charset=utf-8');
+  response.end(body);
 }

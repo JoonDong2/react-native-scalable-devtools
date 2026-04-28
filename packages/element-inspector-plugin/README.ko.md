@@ -47,10 +47,27 @@ curl -s "http://localhost:8081/element-inspector?appId=<id>"
 
 - `appId`: `GET /apps`에서 얻은 연결된 앱 ID.
 - `timeoutMs`: 선택적 snapshot timeout.
+- `compact`: `1`을 전달하면 width 또는 height가 0인 node와 `DebuggingOverlay`를 제거하고, 단순 React Native wrapper pair를 flatten하며, tree node에 `type`, `layout`, `text`, `props.style`, `source`, 비어 있지 않은 `children`만 남깁니다.
+- `plain`: `1`을 전달하면 JSON 대신 들여쓰기 기반 `text/plain` tree를 반환합니다.
 
 `GET /element-inspector`는 항상 앱 런타임에 새 스냅샷을 요청합니다. 캐시된 element tree를 반환하지 않습니다.
 
 연결된 앱이 하나뿐이면 `appId`를 생략할 수 있습니다. 여러 앱이 연결되어 있으면 원하는 앱으로 요청이 라우팅되도록 `appId`를 전달하세요.
+
+`compact`와 `plain`은 값이 `1`일 때만 활성화됩니다. 값이 없거나 비어 있거나 `0`이면 비활성 상태로 처리됩니다. `compact=1&plain=1`을 함께 사용하면 tree를 먼저 compact 처리한 뒤 plain text renderer가 실행됩니다.
+
+```sh
+curl -s "http://localhost:8081/element-inspector?appId=<id>&compact=1"
+curl -s "http://localhost:8081/element-inspector?appId=<id>&plain=1"
+curl -s "http://localhost:8081/element-inspector?appId=<id>&compact=1&plain=1"
+```
+
+Plain output은 depth마다 두 칸을 들여쓰며, text와 layout이 있으면 각 node를 `Type "text" [x,y,width,height]` 형식으로 렌더링합니다.
+
+```text
+RCTView [0,0,390,844]
+  RCTText "Welcome to React Native" [65,230,271,28]
+```
 
 지원하지 않는 query parameter는 거부됩니다. `listDevices=1`은 지원하지 않습니다. 연결된 앱 목록은 `GET /apps`를 사용하세요.
 

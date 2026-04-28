@@ -47,10 +47,27 @@ Supported query parameters:
 
 - `appId`: connected app id from `GET /apps`.
 - `timeoutMs`: optional snapshot timeout.
+- `compact`: pass `1` to prune zero-size nodes and `DebuggingOverlay`, flatten simple React Native wrapper pairs, and keep only `type`, `layout`, `text`, `props.style`, `source`, and non-empty `children` on tree nodes.
+- `plain`: pass `1` to return an indented `text/plain` tree instead of JSON.
 
 `GET /element-inspector` always asks the app runtime for a fresh snapshot. It does not return a cached element tree.
 
 If only one app is connected, `appId` may be omitted. If multiple apps are connected, pass `appId` so the request is routed to the intended app.
+
+Only the value `1` enables `compact` and `plain`; missing values, empty values, and `0` leave the mode disabled. When `compact=1&plain=1` are used together, the tree is compacted before the plain text renderer runs.
+
+```sh
+curl -s "http://localhost:8081/element-inspector?appId=<id>&compact=1"
+curl -s "http://localhost:8081/element-inspector?appId=<id>&plain=1"
+curl -s "http://localhost:8081/element-inspector?appId=<id>&compact=1&plain=1"
+```
+
+Plain output uses two spaces per depth and renders each node as `Type "text" [x,y,width,height]` when text and layout are available:
+
+```text
+RCTView [0,0,390,844]
+  RCTText "Welcome to React Native" [65,230,271,28]
+```
 
 Unsupported query parameters are rejected. `listDevices=1` is not supported; use `GET /apps` instead.
 

@@ -101,8 +101,20 @@ Supported query parameters:
 
 - `appId`: connected app id from `GET /apps`.
 - `timeoutMs`: optional snapshot timeout.
+- `compact`: pass `1` to remove zero-size nodes and `DebuggingOverlay`, flatten simple React Native wrapper pairs, and keep only `type`, `layout`, `text`, `props.style`, `source`, and non-empty `children` on tree nodes.
+- `plain`: pass `1` to return an indented `text/plain` tree instead of JSON.
 
 Unsupported query parameters are rejected. `listDevices=1` is not supported; use `GET /apps` instead.
+
+Only the value `1` enables `compact` and `plain`; missing values, empty values, and `0` leave the mode disabled. When `compact=1&plain=1` are used together, compaction runs first and the plain response contains only the rendered tree.
+
+```sh
+curl -s "http://localhost:8081/element-inspector?appId=<appId>&compact=1"
+curl -s "http://localhost:8081/element-inspector?appId=<appId>&plain=1"
+curl -s "http://localhost:8081/element-inspector?appId=<appId>&compact=1&plain=1"
+```
+
+Plain output renders one node per line, with two spaces per depth and layouts formatted as `[x,y,width,height]`.
 
 `GET /element-inspector` asks the app runtime for a fresh snapshot when the request is made. It does not serve a cached element tree. The plugin is intended for tools such as MCP servers and LLM agents that need to inspect the current React Native output from the development host.
 
