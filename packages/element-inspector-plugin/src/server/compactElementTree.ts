@@ -17,6 +17,8 @@ export interface CompactElementInspectorNode {
   children?: CompactElementInspectorNode[];
 }
 
+type JSONObject = { [key: string]: JSONValue };
+
 const IGNORED_ELEMENT_NAMES = new Set([
   'DebuggingOverlay',
   'LogBoxStateSubscription',
@@ -54,7 +56,7 @@ function compactNode(
   }
   if (node.props?.style !== undefined) {
     output.props = {
-      style: node.props.style,
+      style: compactStyleValue(node.props.style),
     };
   }
   if (node.source) {
@@ -80,6 +82,31 @@ function isIgnoredElementNode(node: ElementInspectorNode): boolean {
 
 function hasZeroSize(layout: ElementInspectorLayout | undefined): boolean {
   return layout?.width === 0 || layout?.height === 0;
+}
+
+function compactStyleValue(style: JSONValue): JSONValue {
+  return Array.isArray(style) ? flattenStyleArray(style) : style;
+}
+
+function flattenStyleArray(styleItems: JSONValue[]): JSONObject {
+  const output: JSONObject = {};
+
+  for (const item of styleItems) {
+    const styleObject = Array.isArray(item)
+      ? flattenStyleArray(item)
+      : getStyleObject(item);
+    if (styleObject) {
+      Object.assign(output, styleObject);
+    }
+  }
+
+  return output;
+}
+
+function getStyleObject(value: JSONValue): JSONObject | null {
+  return value != null && typeof value === 'object' && !Array.isArray(value)
+    ? value
+    : null;
 }
 
 function collapseWrappers(

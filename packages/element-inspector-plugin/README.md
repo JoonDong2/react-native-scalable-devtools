@@ -47,7 +47,7 @@ Supported query parameters:
 
 - `appId`: connected app id from `GET /apps`.
 - `start`: optional component name to use as the response root. Matching uses `displayName` when a component defines one, otherwise `type`. The tree is searched with DFS from the root, visiting children from right to left, and the first matching node becomes the returned root. If no node matches, an empty tree is returned.
-- `compact`: pass `1` to prune zero-size nodes, flatten simple React Native wrapper pairs, and keep only `type`, `displayName`, `layout`, `text`, `props.style`, `source`, and non-empty `children` on tree nodes.
+- `compact`: pass `1` to prune zero-size nodes, flatten simple React Native wrapper pairs, flatten top-level `props.style` arrays into one object, and keep only `type`, `displayName`, `layout`, `text`, `props.style`, `source`, and non-empty `children` on tree nodes.
 - `plain`: pass `1` to return an indented `text/plain` tree instead of JSON. Plain text node labels use `displayName` when present, otherwise `type`.
 
 Snapshots omit React Native development UI nodes named `DebuggingOverlay` and `LogBoxStateSubscription` in all modes, including the default JSON response.
