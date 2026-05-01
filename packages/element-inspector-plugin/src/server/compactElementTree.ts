@@ -17,6 +17,7 @@ export interface CompactElementInspectorNode {
 }
 
 type JSONObject = { [key: string]: JSONValue };
+type NamedElementNode = Pick<ElementInspectorNode, 'type' | 'displayName'>;
 export type CompactElementTreeLevel = 1 | 2;
 
 export interface CompactElementTreeOptions {
@@ -191,7 +192,9 @@ function compactAgentActionNodes(
     return children;
   }
 
-  return [createAgentActionNode(node, children, options)];
+  return [
+    collapseAgentActionWrappers(createAgentActionNode(node, children, options)),
+  ];
 }
 
 function createAgentActionNode(
@@ -237,6 +240,38 @@ function createStructuralRootNode(
   };
 }
 
+function collapseAgentActionWrappers(
+  node: CompactElementInspectorNode
+): CompactElementInspectorNode {
+  let current = node;
+
+  while (current.children?.length === 1) {
+    const child = current.children[0];
+    if (!canBypassAgentActionWrapper(current, child)) {
+      break;
+    }
+    current = child;
+  }
+
+  return current;
+}
+
+function canBypassAgentActionWrapper(
+  parent: CompactElementInspectorNode,
+  child: CompactElementInspectorNode
+): boolean {
+  return (
+    isScrollableElement(parent) &&
+    isScrollableElement(child) &&
+    hasSameLayout(parent.layout, child.layout) &&
+    !hasAgentActionTargetInfo(parent)
+  );
+}
+
+function hasAgentActionTargetInfo(node: CompactElementInspectorNode): boolean {
+  return node.text !== undefined || !!node.props;
+}
+
 function isAgentActionRelevantNode(node: ElementInspectorNode): boolean {
   return (
     !hasZeroSize(node.layout) &&
@@ -256,7 +291,7 @@ function isTouchableElement(node: ElementInspectorNode): boolean {
   );
 }
 
-function isScrollableElement(node: ElementInspectorNode): boolean {
+function isScrollableElement(node: NamedElementNode): boolean {
   return hasNamePart(node, SCROLLABLE_NAME_PARTS);
 }
 
@@ -326,18 +361,18 @@ function hasAccessibilityRole(
   return typeof role === 'string' && roles.has(role.toLowerCase());
 }
 
-function hasExactName(node: ElementInspectorNode, names: Set<string>): boolean {
+function hasExactName(node: NamedElementNode, names: Set<string>): boolean {
   return getNodeNames(node).some((name) => names.has(name));
 }
 
-function hasNamePart(node: ElementInspectorNode, parts: string[]): boolean {
+function hasNamePart(node: NamedElementNode, parts: string[]): boolean {
   return getNodeNames(node).some((name) => {
     const normalizedName = name.toLowerCase();
     return parts.some((part) => normalizedName.includes(part));
   });
 }
 
-function getNodeNames(node: ElementInspectorNode): string[] {
+function getNodeNames(node: NamedElementNode): string[] {
   return node.displayName && node.displayName !== node.type
     ? [node.type, node.displayName]
     : [node.type];

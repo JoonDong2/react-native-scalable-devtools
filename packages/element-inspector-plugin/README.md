@@ -89,6 +89,8 @@ JSON responses include `displayName` on element nodes. When a component does not
 
 Compact JSON and plain text responses keep node ids when `nodeId=1` is passed, so another tool can act on a node after reading a compacted tree. `compact=2` keeps node ids by default because it is intended for agent-action target selection. When wrapper nodes are collapsed, the remaining child keeps its own original `id`.
 
+`compact=2` collapses redundant same-layout scroll wrapper chains when the wrapper has no target props or text. If a wrapper carries target information such as `testID`, `nativeID`, `accessibilityLabel`, `accessibilityRole`, or `disabled`, it is preserved so an agent can still target it.
+
 ## App Identity
 
 The plugin uses `appId` to select the connected React Native runtime that should receive the snapshot request.
