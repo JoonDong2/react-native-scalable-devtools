@@ -1,4 +1,4 @@
-# react-native-scalable-debugger-agent-actions-plugin
+# react-native-agent-actions-plugin
 
 [한국어](README.ko.md)
 
@@ -17,7 +17,7 @@ const {
 } = require('react-native-scalable-debugger-element-inspector-plugin');
 const {
   agentActionsPlugin,
-} = require('react-native-scalable-debugger-agent-actions-plugin');
+} = require('react-native-agent-actions-plugin');
 
 module.exports = {
   commands: [startCommand(elementInspectorPlugin(), agentActionsPlugin())],
@@ -30,7 +30,7 @@ The plugin cannot discover your navigation container by itself. Create the navig
 
 ```ts
 import { createNavigationContainerRef } from '@react-navigation/native';
-import { registerNavigationRef } from 'react-native-scalable-debugger-agent-actions-plugin/client';
+import { registerNavigationRef } from 'react-native-agent-actions-plugin/client';
 
 export const navigationRef = createNavigationContainerRef();
 

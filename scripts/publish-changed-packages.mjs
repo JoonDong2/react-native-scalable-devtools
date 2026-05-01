@@ -26,6 +26,10 @@ const PACKAGES = [
     name: 'react-native-scalable-debugger-element-inspector-plugin',
     directory: 'packages/element-inspector-plugin',
   },
+  {
+    name: 'react-native-agent-actions-plugin',
+    directory: 'packages/agent-actions-plugin',
+  },
 ];
 
 const options = parseArgs(process.argv.slice(2));

@@ -48,7 +48,7 @@ const {
 } = require('react-native-scalable-debugger-element-inspector-plugin');
 const {
   agentActionsPlugin,
-} = require('react-native-scalable-debugger-agent-actions-plugin');
+} = require('react-native-agent-actions-plugin');
 
 module.exports = {
   commands: [
@@ -158,7 +158,7 @@ This plugin is a good fit for MCP servers, test agents, and custom scripts that 
 
 The image is stored next to this README for documentation only. It is not listed in the package `files`, so it is not included in the published npm package.
 
-### `react-native-scalable-debugger-agent-actions-plugin`
+### `react-native-agent-actions-plugin`
 
 Use this plugin when an external agent needs to resolve current UI targets, move through React Navigation, press a matched view, or scroll a matched container.
 
