@@ -1,4 +1,4 @@
-# @react-native-scalable-devtools/agemt-actions-plugin
+# @react-native-scalable-devtools/agent-actions-plugin
 
 [English](README.md)
 
@@ -17,7 +17,7 @@ const {
 } = require('@react-native-scalable-devtools/element-inspector-plugin');
 const {
   agentActionsPlugin,
-} = require('@react-native-scalable-devtools/agemt-actions-plugin');
+} = require('@react-native-scalable-devtools/agent-actions-plugin');
 
 module.exports = {
   commands: [startCommand(elementInspectorPlugin(), agentActionsPlugin())],
@@ -30,7 +30,7 @@ plugin이 navigation container를 자동으로 찾지는 않습니다. 앱에서
 
 ```ts
 import { createNavigationContainerRef } from '@react-navigation/native';
-import { registerNavigationRef } from '@react-native-scalable-devtools/agemt-actions-plugin/client';
+import { registerNavigationRef } from '@react-native-scalable-devtools/agent-actions-plugin/client';
 
 export const navigationRef = createNavigationContainerRef();
 

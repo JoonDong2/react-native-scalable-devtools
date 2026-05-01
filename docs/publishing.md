@@ -7,7 +7,7 @@ This repository publishes three npm packages:
 - `@react-native-scalable-devtools/cli`
 - `@react-native-scalable-devtools/network-plugin`
 - `@react-native-scalable-devtools/element-inspector-plugin`
-- `@react-native-scalable-devtools/agemt-actions-plugin`
+- `@react-native-scalable-devtools/agent-actions-plugin`
 
 Publishing runs from `.github/workflows/publish.yml` on pushes to `main`. The workflow uses the repository `NPM_TOKEN` secret through `NODE_AUTH_TOKEN` and publishes with npm provenance enabled.
 
@@ -32,7 +32,7 @@ Root-only changes do not publish any package. If core and plugin packages change
 1. `@react-native-scalable-devtools/cli`
 2. `@react-native-scalable-devtools/network-plugin`
 3. `@react-native-scalable-devtools/element-inspector-plugin`
-4. `@react-native-scalable-devtools/agemt-actions-plugin`
+4. `@react-native-scalable-devtools/agent-actions-plugin`
 
 ## Local Dry Run
 

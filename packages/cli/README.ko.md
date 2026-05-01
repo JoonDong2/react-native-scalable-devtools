@@ -48,7 +48,7 @@ const {
 } = require('@react-native-scalable-devtools/element-inspector-plugin');
 const {
   agentActionsPlugin,
-} = require('@react-native-scalable-devtools/agemt-actions-plugin');
+} = require('@react-native-scalable-devtools/agent-actions-plugin');
 
 module.exports = {
   commands: [
@@ -158,7 +158,7 @@ core package는 의도적으로 작게 유지합니다. 특별한 동작은 plug
 
 이 이미지는 이 README 옆에 문서용으로만 두었습니다. 패키지 `files` 목록에 포함하지 않았기 때문에 npm 배포본에는 포함되지 않습니다.
 
-### `@react-native-scalable-devtools/agemt-actions-plugin`
+### `@react-native-scalable-devtools/agent-actions-plugin`
 
 이 plugin은 외부 agent가 현재 UI target을 resolve하고, React Navigation 화면을 이동하고, 매칭된 view를 press하거나 scroll container를 스크롤해야 할 때 사용합니다.
 

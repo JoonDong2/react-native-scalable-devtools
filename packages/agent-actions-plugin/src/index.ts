@@ -11,7 +11,7 @@ const agentActionsPluginDefinition: ScalableDebuggerPlugin = {
   name: 'agent-actions',
   clientEntries: [
     {
-      importPath: '@react-native-scalable-devtools/agemt-actions-plugin/client',
+      importPath: '@react-native-scalable-devtools/agent-actions-plugin/client',
     },
   ],
   middlewareEndpoints: createAgentActionsMiddlewareEndpoints(controller),

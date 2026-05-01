@@ -7,7 +7,7 @@
 - `@react-native-scalable-devtools/cli`
 - `@react-native-scalable-devtools/network-plugin`
 - `@react-native-scalable-devtools/element-inspector-plugin`
-- `@react-native-scalable-devtools/agemt-actions-plugin`
+- `@react-native-scalable-devtools/agent-actions-plugin`
 
 배포는 `main` branch push 시 `.github/workflows/publish.yml`에서 실행됩니다. Workflow는 repository의 `NPM_TOKEN` secret을 `NODE_AUTH_TOKEN`으로 사용하고, npm provenance를 활성화해 publish합니다.
 
@@ -32,7 +32,7 @@ Root-only 변경은 어떤 package도 배포하지 않습니다. Core와 plugin 
 1. `@react-native-scalable-devtools/cli`
 2. `@react-native-scalable-devtools/network-plugin`
 3. `@react-native-scalable-devtools/element-inspector-plugin`
-4. `@react-native-scalable-devtools/agemt-actions-plugin`
+4. `@react-native-scalable-devtools/agent-actions-plugin`
 
 ## Local Dry Run
 
