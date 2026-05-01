@@ -2,7 +2,7 @@ import type {
   MiddlewareEndpointContribution,
   MiddlewareNext,
   PluginEndpointContext,
-} from 'react-native-scalable-debugger/plugin';
+} from '@react-native-scalable-devtools/cli/plugin';
 import type { IncomingMessage, ServerResponse } from 'http';
 import {
   AGENT_ACTIONS_BACK_ENDPOINT,

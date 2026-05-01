@@ -1,7 +1,7 @@
 import type {
   InspectorDomainContribution,
   InspectorDomainContext,
-} from 'react-native-scalable-debugger/plugin';
+} from '@react-native-scalable-devtools/cli/plugin';
 import type { CDPMessage } from '../types/cdp';
 
 export class NetworkDomain implements InspectorDomainContribution {

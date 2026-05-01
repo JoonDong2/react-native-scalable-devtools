@@ -1,4 +1,4 @@
-import { DebuggerConnection } from 'react-native-scalable-debugger/client';
+import { DebuggerConnection } from '@react-native-scalable-devtools/cli/client';
 import XHRInterceptor from '../interceptor/XHRInterceptor';
 import { getId } from '../utils/id';
 import { NativeModules } from 'react-native';

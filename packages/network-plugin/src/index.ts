@@ -1,8 +1,8 @@
-import type { ScalableDebuggerPlugin } from 'react-native-scalable-debugger/plugin';
+import type { ScalableDebuggerPlugin } from '@react-native-scalable-devtools/cli/plugin';
 import type {
   DebuggerFrontendPatch,
   RunServerOptions,
-} from 'react-native-scalable-debugger';
+} from '@react-native-scalable-devtools/cli';
 import { createNetworkDomain } from './server/NetworkDomain';
 import { preparePatchedFrontend } from './server/patchDebuggerFrontend';
 
@@ -15,7 +15,7 @@ const networkPanelPluginDefinition: ScalableDebuggerPlugin = {
   domains: [createNetworkDomain],
   clientEntries: [
     {
-      importPath: 'react-native-scalable-debugger-network-plugin/client',
+      importPath: '@react-native-scalable-devtools/network-plugin/client',
     },
   ],
 };

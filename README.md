@@ -1,8 +1,8 @@
-# react-native-scalable-debugger
+# react-native-scalable-devtools
 
 [한국어](README.ko.md)
 
-`react-native-scalable-debugger` is a monorepo for a plugin-oriented React Native debugger server.
+`@react-native-scalable-devtools/cli` is the core package in this monorepo. It provides the server that connects to React Native apps, exposes debugger endpoints, and gives plugins a shared surface for extending the debugger experience.
 
 The project is split into a small core package and focused plugins so you can use only the pieces you need.
 
@@ -37,17 +37,17 @@ The goal is to keep the core debugger small and predictable while letting plugin
 Start with the core package and register only the plugins you want.
 
 ```js
-const { startCommand } = require('react-native-scalable-debugger');
+const { startCommand } = require('@react-native-scalable-devtools/cli');
 const {
   networkPanelPlugin,
   patchDebuggerFrontend,
-} = require('react-native-scalable-debugger-network-plugin');
+} = require('@react-native-scalable-devtools/network-plugin');
 const {
   elementInspectorPlugin,
-} = require('react-native-scalable-debugger-element-inspector-plugin');
+} = require('@react-native-scalable-devtools/element-inspector-plugin');
 const {
   agentActionsPlugin,
-} = require('react-native-agent-actions-plugin');
+} = require('@react-native-scalable-devtools/agemt-actions-plugin');
 
 module.exports = {
   commands: [
@@ -62,9 +62,9 @@ module.exports = {
 
 Useful endpoints:
 
-- `GET /apps` from `react-native-scalable-debugger` to discover connected apps, their `appId` values, and the device identifier the host OS recognizes for each app
-- `GET /element-inspector` from `react-native-scalable-debugger-element-inspector-plugin` to fetch the live element tree for a connected app
-- `POST /agent-actions/*` from `react-native-agent-actions-plugin` to let an external agent resolve targets, navigate, press, and scroll a connected app
+- `GET /apps` from `@react-native-scalable-devtools/cli` to discover connected apps, their `appId` values, and the device identifier the host OS recognizes for each app
+- `GET /element-inspector` from `@react-native-scalable-devtools/element-inspector-plugin` to fetch the live element tree for a connected app
+- `POST /agent-actions/*` from `@react-native-scalable-devtools/agemt-actions-plugin` to let an external agent resolve targets, navigate, press, and scroll a connected app
 
 If only one app is connected, `appId` can usually be omitted. If more than one app is connected, pass `appId` so the request reaches the intended runtime.
 
@@ -72,16 +72,16 @@ The `deviceInfo.deviceId` field from `GET /apps` is useful when you want to targ
 
 ## Packages
 
-- `react-native-scalable-debugger`: the core debugger server. It provides `startCommand`, the AppProxy that tracks connected apps, and the plugin API for custom endpoints and debugger hooks. See [package README](packages/react-native-scalable-debugger/README.md).
-- `react-native-scalable-debugger-network-plugin`: the network inspection plugin. Use it when you need better visibility into HTTP requests and WebSocket traffic than the stock React Native network panel provides. It also patches the debugger frontend so socket traffic can be shown separately from Fetch/XHR traffic. See [package README](packages/network-plugin/README.md).
-- `react-native-scalable-debugger-element-inspector-plugin`: the live element-tree inspection plugin. Use it when you want to inspect the current React Native UI hierarchy from the development host, compact the tree, render it as plain text for an agent or script, or capture a snapshot after driving the app into a specific state with a host-side tool such as Maestro CLI. See [package README](packages/element-inspector-plugin/README.md).
-- `react-native-agent-actions-plugin`: the agent action plugin. Use it when an external LLM agent needs to resolve current UI targets, navigate through React Navigation with a registered `navigationRef`, press a matched view, or scroll a matched container. See [package README](packages/agent-actions-plugin/README.md).
+- `@react-native-scalable-devtools/cli`: the core debugger server. It provides `startCommand`, the AppProxy that tracks connected apps, and the plugin API for custom endpoints and debugger hooks. See [package README](packages/cli/README.md).
+- `@react-native-scalable-devtools/network-plugin`: the network inspection plugin. Use it when you need better visibility into HTTP requests and WebSocket traffic than the stock React Native network panel provides. It also patches the debugger frontend so socket traffic can be shown separately from Fetch/XHR traffic. See [package README](packages/network-plugin/README.md).
+- `@react-native-scalable-devtools/element-inspector-plugin`: the live element-tree inspection plugin. Use it when you want to inspect the current React Native UI hierarchy from the development host, compact the tree, render it as plain text for an agent or script, or capture a snapshot after driving the app into a specific state with a host-side tool such as Maestro CLI. See [package README](packages/element-inspector-plugin/README.md).
+- `@react-native-scalable-devtools/agemt-actions-plugin`: the agent action plugin. Use it when an external LLM agent needs to resolve current UI targets, navigate through React Navigation with a registered `navigationRef`, press a matched view, or scroll a matched container. See [package README](packages/agent-actions-plugin/README.md).
 
 ## Package Docs
 
 Each package has its own README with more detail:
 
-- [Core package README](packages/react-native-scalable-debugger/README.md)
+- [Core package README](packages/cli/README.md)
 - [Network plugin README](packages/network-plugin/README.md)
 - [Element inspector plugin README](packages/element-inspector-plugin/README.md)
 - [Agent actions plugin README](packages/agent-actions-plugin/README.md)

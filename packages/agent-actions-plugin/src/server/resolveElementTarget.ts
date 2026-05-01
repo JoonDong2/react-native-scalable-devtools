@@ -1,4 +1,4 @@
-import type { ElementInspectorNode } from 'react-native-scalable-debugger-element-inspector-plugin';
+import type { ElementInspectorNode } from '@react-native-scalable-devtools/element-inspector-plugin';
 import type { AgentActionTarget, JSONValue } from '../shared/protocol';
 
 export interface ResolvedElementTarget {

@@ -1,23 +1,23 @@
-# react-native-agent-actions-plugin
+# @react-native-scalable-devtools/agemt-actions-plugin
 
 [English](README.md)
 
 이 plugin은 외부 agent가 실행 중인 React Native 앱에서 target을 resolve하고, React Navigation으로 화면을 이동하고, 특정 view를 press하거나 scroll container를 스크롤할 수 있도록 host-side endpoint를 제공합니다.
 
-`react-native-scalable-debugger-element-inspector-plugin`과 함께 쓰도록 설계했습니다. Raw UI 관찰은 `/element-inspector`를 사용하고, 이 plugin은 target resolve와 semantic action에 사용하세요.
+`@react-native-scalable-devtools/element-inspector-plugin`과 함께 쓰도록 설계했습니다. Raw UI 관찰은 `/element-inspector`를 사용하고, 이 plugin은 target resolve와 semantic action에 사용하세요.
 
 ## 사용법
 
 ### plugin 등록
 
 ```js
-const { startCommand } = require('react-native-scalable-debugger');
+const { startCommand } = require('@react-native-scalable-devtools/cli');
 const {
   elementInspectorPlugin,
-} = require('react-native-scalable-debugger-element-inspector-plugin');
+} = require('@react-native-scalable-devtools/element-inspector-plugin');
 const {
   agentActionsPlugin,
-} = require('react-native-agent-actions-plugin');
+} = require('@react-native-scalable-devtools/agemt-actions-plugin');
 
 module.exports = {
   commands: [startCommand(elementInspectorPlugin(), agentActionsPlugin())],
@@ -30,7 +30,7 @@ plugin이 navigation container를 자동으로 찾지는 않습니다. 앱에서
 
 ```ts
 import { createNavigationContainerRef } from '@react-navigation/native';
-import { registerNavigationRef } from 'react-native-agent-actions-plugin/client';
+import { registerNavigationRef } from '@react-native-scalable-devtools/agemt-actions-plugin/client';
 
 export const navigationRef = createNavigationContainerRef();
 

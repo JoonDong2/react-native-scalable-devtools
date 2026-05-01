@@ -1,4 +1,4 @@
-# react-native-scalable-debugger-element-inspector-plugin
+# @react-native-scalable-devtools/element-inspector-plugin
 
 [한국어](README.ko.md)
 
@@ -10,10 +10,10 @@ This plugin exposes the current UI hierarchy of a connected React Native app, in
 ### Register the plugin
 
 ```js
-const { startCommand } = require('react-native-scalable-debugger');
+const { startCommand } = require('@react-native-scalable-devtools/cli');
 const {
   elementInspectorPlugin,
-} = require('react-native-scalable-debugger-element-inspector-plugin');
+} = require('@react-native-scalable-devtools/element-inspector-plugin');
 
 module.exports = {
   commands: [startCommand(elementInspectorPlugin())],
@@ -67,7 +67,7 @@ curl -s "http://localhost:8081/element-inspector?appId=<appId>&layoutPrecision=2
 
 You can use it like this: the plugin reads the React tree, turns it into a layout tree, and returns a result that a test agent can evaluate directly.
 
-![Element inspector flow](../react-native-scalable-debugger/element-inspector.png)
+![Element inspector flow](../cli/element-inspector.png)
 
 The element inspector plugin helps reduce token and context usage by letting you select a root node, flatten wrapper nodes, or convert the tree into plain text before handing it to an agent.
 
@@ -103,4 +103,4 @@ Use `GET /apps` from the core package to discover connected apps and check the a
 
 This plugin does not patch the debugger frontend.
 
-It can be used independently of the network plugin, but both plugins share the same core AppProxy model from `react-native-scalable-debugger`.
+It can be used independently of the network plugin, but both plugins share the same core AppProxy model from `@react-native-scalable-devtools/cli`.

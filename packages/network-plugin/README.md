@@ -1,8 +1,8 @@
-# react-native-scalable-debugger-network-plugin
+# @react-native-scalable-devtools/network-plugin
 
 [한국어](README.ko.md)
 
-Network panel plugin for `react-native-scalable-debugger`.
+Network panel plugin for `@react-native-scalable-devtools/cli`.
 
 ## Why This Plugin Exists
 
@@ -11,11 +11,11 @@ The built-in React Native debugger network panel is not enough for this debuggin
 ## Usage
 
 ```js
-const { startCommand } = require('react-native-scalable-debugger');
+const { startCommand } = require('@react-native-scalable-devtools/cli');
 const {
   networkPanelPlugin,
   patchDebuggerFrontend,
-} = require('react-native-scalable-debugger-network-plugin');
+} = require('@react-native-scalable-devtools/network-plugin');
 
 module.exports = {
   commands: [

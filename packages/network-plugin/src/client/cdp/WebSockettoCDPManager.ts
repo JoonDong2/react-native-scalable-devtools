@@ -1,5 +1,5 @@
 import WebSocketInterceptor from '../interceptor/WebSocketInterceptor';
-import { DebuggerConnection } from 'react-native-scalable-debugger/client';
+import { DebuggerConnection } from '@react-native-scalable-devtools/cli/client';
 import { JS_APP_URL } from '../../shared/constants';
 
 const getWebSocketCdpId = (socketId: number): string => {

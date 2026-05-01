@@ -133,7 +133,7 @@ async function runServer(
   // React 렌더러가 ReactNativePrivateInitializeCore를 통해 상대 경로로 InitializeCore를 import하므로
   // 이 경로를 가로채 client 번들을 로드하면 앱 시작 시점에 CDP 훅이 설치된다.
   const prevResolveRequest = metroConfig.resolver?.resolveRequest;
-  const clientPath = require.resolve('react-native-scalable-debugger/client', {
+  const clientPath = require.resolve('@react-native-scalable-devtools/cli/client', {
     paths: [process.cwd(), __dirname],
   });
   const packageDirs = addDebuggerWatchFolders(

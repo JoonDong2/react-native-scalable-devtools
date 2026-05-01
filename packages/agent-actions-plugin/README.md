@@ -1,23 +1,23 @@
-# react-native-agent-actions-plugin
+# @react-native-scalable-devtools/agemt-actions-plugin
 
 [한국어](README.ko.md)
 
 This plugin exposes host-side endpoints that let an external agent resolve targets in a running React Native app, navigate through React Navigation, and trigger simple UI actions such as pressing a matched view or scrolling a matched scroll container.
 
-It is designed to work with `react-native-scalable-debugger-element-inspector-plugin`. Use `/element-inspector` for raw UI observation, then use this plugin for target resolution and semantic actions.
+It is designed to work with `@react-native-scalable-devtools/element-inspector-plugin`. Use `/element-inspector` for raw UI observation, then use this plugin for target resolution and semantic actions.
 
 ## Usage
 
 ### Register the plugin
 
 ```js
-const { startCommand } = require('react-native-scalable-debugger');
+const { startCommand } = require('@react-native-scalable-devtools/cli');
 const {
   elementInspectorPlugin,
-} = require('react-native-scalable-debugger-element-inspector-plugin');
+} = require('@react-native-scalable-devtools/element-inspector-plugin');
 const {
   agentActionsPlugin,
-} = require('react-native-agent-actions-plugin');
+} = require('@react-native-scalable-devtools/agemt-actions-plugin');
 
 module.exports = {
   commands: [startCommand(elementInspectorPlugin(), agentActionsPlugin())],
@@ -30,7 +30,7 @@ The plugin cannot discover your navigation container by itself. Create the navig
 
 ```ts
 import { createNavigationContainerRef } from '@react-navigation/native';
-import { registerNavigationRef } from 'react-native-agent-actions-plugin/client';
+import { registerNavigationRef } from '@react-native-scalable-devtools/agemt-actions-plugin/client';
 
 export const navigationRef = createNavigationContainerRef();
 

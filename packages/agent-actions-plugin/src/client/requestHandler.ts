@@ -1,4 +1,4 @@
-import { DebuggerConnection } from 'react-native-scalable-debugger/client';
+import { DebuggerConnection } from '@react-native-scalable-devtools/cli/client';
 import {
   AGENT_ACTIONS_PERFORM_METHOD,
   AGENT_ACTIONS_RESULT_METHOD,

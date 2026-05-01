@@ -1,8 +1,8 @@
-# react-native-scalable-debugger
+# @react-native-scalable-devtools/cli
 
 [한국어](README.ko.md)
 
-`react-native-scalable-debugger` is the core package in this monorepo. It provides the server that connects to React Native apps, exposes debugger endpoints, and gives plugins a shared surface for extending the debugger experience.
+`@react-native-scalable-devtools/cli` is the core package in this monorepo. It provides the server that connects to React Native apps, exposes debugger endpoints, and gives plugins a shared surface for extending the debugger experience.
 
 ## Overview
 
@@ -38,17 +38,17 @@ The goal is to keep the core debugger small, extensible, and predictable while l
 The simplest usage is to install the package, import `startCommand`, and register plugins.
 
 ```js
-const { startCommand } = require('react-native-scalable-debugger');
+const { startCommand } = require('@react-native-scalable-devtools/cli');
 const {
   networkPanelPlugin,
   patchDebuggerFrontend,
-} = require('react-native-scalable-debugger-network-plugin');
+} = require('@react-native-scalable-devtools/network-plugin');
 const {
   elementInspectorPlugin,
-} = require('react-native-scalable-debugger-element-inspector-plugin');
+} = require('@react-native-scalable-devtools/element-inspector-plugin');
 const {
   agentActionsPlugin,
-} = require('react-native-agent-actions-plugin');
+} = require('@react-native-scalable-devtools/agemt-actions-plugin');
 
 module.exports = {
   commands: [
@@ -104,11 +104,11 @@ The response is generated on demand, so it reflects the current UI tree when the
 The base debugger frontend is configured on `startCommand`, not inside a single plugin.
 
 ```js
-const { startCommand } = require('react-native-scalable-debugger');
+const { startCommand } = require('@react-native-scalable-devtools/cli');
 const {
   networkPanelPlugin,
   patchDebuggerFrontend,
-} = require('react-native-scalable-debugger-network-plugin');
+} = require('@react-native-scalable-devtools/network-plugin');
 
 module.exports = {
   commands: [
@@ -131,7 +131,7 @@ If you do not provide a custom frontend, the server resolves `@react-native/debu
 
 The core package is intentionally small. The special behavior lives in plugins so you can add only what your project needs.
 
-### `react-native-scalable-debugger-network-plugin`
+### `@react-native-scalable-devtools/network-plugin`
 
 Use this plugin when you need better network visibility than the default React Native debugger gives you.
 
@@ -143,7 +143,7 @@ It is useful because:
 
 In short, this plugin is the network layer for debugging apps that talk to servers, sockets, or streaming APIs.
 
-### `react-native-scalable-debugger-element-inspector-plugin`
+### `@react-native-scalable-devtools/element-inspector-plugin`
 
 Use this plugin when you need a live view of the React Native element tree.
 
@@ -158,7 +158,7 @@ This plugin is a good fit for MCP servers, test agents, and custom scripts that 
 
 The image is stored next to this README for documentation only. It is not listed in the package `files`, so it is not included in the published npm package.
 
-### `react-native-agent-actions-plugin`
+### `@react-native-scalable-devtools/agemt-actions-plugin`
 
 Use this plugin when an external agent needs to resolve current UI targets, move through React Navigation, press a matched view, or scroll a matched container.
 
@@ -176,7 +176,7 @@ This plugin performs JavaScript semantic actions. For native tap and swipe fidel
 You can extend the debugger by implementing `ScalableDebuggerPlugin`.
 
 ```typescript
-import type { ScalableDebuggerPlugin } from 'react-native-scalable-debugger';
+import type { ScalableDebuggerPlugin } from '@react-native-scalable-devtools/cli';
 
 export const myCustomPlugin = (): ScalableDebuggerPlugin => ({
   name: 'my-custom-plugin',

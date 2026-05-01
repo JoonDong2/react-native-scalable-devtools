@@ -1,4 +1,4 @@
-import { DebuggerConnection } from 'react-native-scalable-debugger/client';
+import { DebuggerConnection } from '@react-native-scalable-devtools/cli/client';
 import {
   ELEMENT_INSPECTOR_GET_TREE_METHOD,
   ELEMENT_INSPECTOR_SNAPSHOT_METHOD,

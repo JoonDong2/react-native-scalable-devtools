@@ -1,7 +1,7 @@
 import type {
   PluginEndpointContext,
   WebSocketEndpointContribution,
-} from 'react-native-scalable-debugger/plugin';
+} from '@react-native-scalable-devtools/cli/plugin';
 import type { RawData, WebSocket, WebSocketServer } from 'ws';
 import type { ElementInspectorController } from './ElementInspectorController';
 import { stringifyJson } from '../shared/stringifyJson';

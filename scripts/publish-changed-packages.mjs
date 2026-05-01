@@ -15,19 +15,19 @@ const REPO_ROOT = path.resolve(
 
 const PACKAGES = [
   {
-    name: 'react-native-scalable-debugger',
-    directory: 'packages/react-native-scalable-debugger',
+    name: '@react-native-scalable-devtools/cli',
+    directory: 'packages/cli',
   },
   {
-    name: 'react-native-scalable-debugger-network-plugin',
+    name: '@react-native-scalable-devtools/network-plugin',
     directory: 'packages/network-plugin',
   },
   {
-    name: 'react-native-scalable-debugger-element-inspector-plugin',
+    name: '@react-native-scalable-devtools/element-inspector-plugin',
     directory: 'packages/element-inspector-plugin',
   },
   {
-    name: 'react-native-agent-actions-plugin',
+    name: '@react-native-scalable-devtools/agemt-actions-plugin',
     directory: 'packages/agent-actions-plugin',
   },
 ];

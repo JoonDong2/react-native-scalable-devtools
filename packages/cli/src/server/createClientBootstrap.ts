@@ -25,7 +25,7 @@ export function createClientBootstrap(
   );
   const content = [
     "import 'react-native/Libraries/Core/InitializeCore.js';",
-    "import { DebuggerConnection } from 'react-native-scalable-debugger/client';",
+    "import { DebuggerConnection } from '@react-native-scalable-devtools/cli/client';",
     ...imports.map((importPath) => `import ${JSON.stringify(importPath)};`),
     'DebuggerConnection.connect();',
     '',

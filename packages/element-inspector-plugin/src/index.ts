@@ -1,5 +1,5 @@
-import type { ScalableDebuggerPlugin } from 'react-native-scalable-debugger/plugin';
-import type { RunServerOptions } from 'react-native-scalable-debugger';
+import type { ScalableDebuggerPlugin } from '@react-native-scalable-devtools/cli/plugin';
+import type { RunServerOptions } from '@react-native-scalable-devtools/cli';
 import { ELEMENT_INSPECTOR_ENDPOINT } from './shared/protocol';
 import { ElementInspectorController } from './server/ElementInspectorController';
 import { createElementInspectorMiddleware } from './server/createElementInspectorMiddleware';
@@ -14,7 +14,7 @@ const elementInspectorPluginDefinition: ScalableDebuggerPlugin = {
   clientEntries: [
     {
       importPath:
-        'react-native-scalable-debugger-element-inspector-plugin/client',
+        '@react-native-scalable-devtools/element-inspector-plugin/client',
     },
   ],
   middlewareEndpoints: [

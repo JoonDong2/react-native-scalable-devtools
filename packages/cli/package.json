@@ -1,10 +1,10 @@
 {
-  "name": "react-native-scalable-debugger",
-  "version": "0.0.4",
+  "name": "@react-native-scalable-devtools/cli",
+  "version": "0.0.1",
   "repository": {
     "type": "git",
-    "url": "https://github.com/JoonDong2/react-native-scalable-debugger",
-    "directory": "packages/react-native-scalable-debugger"
+    "url": "git+https://github.com/JoonDong2/react-native-scalable-devtools.git",
+    "directory": "packages/cli"
   },
   "main": "dist/server/index.js",
   "types": "dist/server/index.d.ts",

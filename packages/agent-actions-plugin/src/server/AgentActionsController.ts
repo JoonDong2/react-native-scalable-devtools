@@ -1,11 +1,11 @@
-import type { PluginEndpointContext } from 'react-native-scalable-debugger/plugin';
+import type { PluginEndpointContext } from '@react-native-scalable-devtools/cli/plugin';
 import type {
   ElementInspectorDevice,
   ElementInspectorErrorResponse,
   ElementInspectorGetTreeParams,
   ElementInspectorSnapshot,
   ElementInspectorSuccessResponse,
-} from 'react-native-scalable-debugger-element-inspector-plugin';
+} from '@react-native-scalable-devtools/element-inspector-plugin';
 import {
   AGENT_ACTIONS_PERFORM_METHOD,
   AGENT_ACTIONS_RESULT_METHOD,

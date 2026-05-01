@@ -1,4 +1,4 @@
-import type { PluginEndpointContext } from 'react-native-scalable-debugger/plugin';
+import type { PluginEndpointContext } from '@react-native-scalable-devtools/cli/plugin';
 import {
   ELEMENT_INSPECTOR_GET_TREE_METHOD,
   ELEMENT_INSPECTOR_SNAPSHOT_METHOD,

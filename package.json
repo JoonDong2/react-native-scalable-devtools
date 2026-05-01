@@ -6,9 +6,9 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "yarn workspace react-native-scalable-debugger build && yarn workspace react-native-scalable-debugger-network-plugin build && yarn workspace react-native-scalable-debugger-element-inspector-plugin build && yarn workspace react-native-agent-actions-plugin build",
-    "typecheck": "yarn workspace react-native-scalable-debugger typecheck && yarn workspace react-native-scalable-debugger-network-plugin typecheck && yarn workspace react-native-scalable-debugger-element-inspector-plugin typecheck && yarn workspace react-native-agent-actions-plugin typecheck",
-    "test": "yarn workspace react-native-scalable-debugger test && yarn workspace react-native-scalable-debugger-network-plugin test && yarn workspace react-native-scalable-debugger-element-inspector-plugin test && yarn workspace react-native-agent-actions-plugin test"
+    "build": "yarn workspace @react-native-scalable-devtools/cli build && yarn workspace @react-native-scalable-devtools/network-plugin build && yarn workspace @react-native-scalable-devtools/element-inspector-plugin build && yarn workspace @react-native-scalable-devtools/agemt-actions-plugin build",
+    "typecheck": "yarn workspace @react-native-scalable-devtools/cli typecheck && yarn workspace @react-native-scalable-devtools/network-plugin typecheck && yarn workspace @react-native-scalable-devtools/element-inspector-plugin typecheck && yarn workspace @react-native-scalable-devtools/agemt-actions-plugin typecheck",
+    "test": "yarn workspace @react-native-scalable-devtools/cli test && yarn workspace @react-native-scalable-devtools/network-plugin test && yarn workspace @react-native-scalable-devtools/element-inspector-plugin test && yarn workspace @react-native-scalable-devtools/agemt-actions-plugin test"
   },
   "devDependencies": {
     "@react-native-community/cli-types": "18.0.0",

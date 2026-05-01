@@ -1,7 +1,7 @@
 import type {
   MiddlewareNext,
   PluginEndpointContext,
-} from 'react-native-scalable-debugger/plugin';
+} from '@react-native-scalable-devtools/cli/plugin';
 import type { IncomingMessage, ServerResponse } from 'http';
 import type { ElementInspectorController } from './ElementInspectorController';
 import type { ElementInspectorLayout, ElementInspectorNode } from '../shared/protocol';
