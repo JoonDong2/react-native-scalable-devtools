@@ -112,7 +112,9 @@ class ReactNavigationPanelImpl extends UI.Panel.Panel {
   #readyElement;
   #routeElement;
   #updatedElement;
-  #stateElement;
+  #detailElement;
+  #routeListElement;
+  #selectedRoute = null;
 
   constructor() {
     super("react-navigation", true);
@@ -151,7 +153,7 @@ class ReactNavigationPanelImpl extends UI.Panel.Panel {
     const enabled = await this.#invoke("ReactNavigation.enable");
     if (enabled?.getError?.()) {
       this.#setStatus(enabled.getError());
-      this.#stateElement.textContent = enabled.getError();
+      this.#renderMessage(enabled.getError());
       this.#scheduleReconnect();
       return;
     }
@@ -183,7 +185,7 @@ class ReactNavigationPanelImpl extends UI.Panel.Panel {
     const result = await this.#invoke("ReactNavigation.getState");
     if (result?.getError?.()) {
       this.#setStatus(result.getError());
-      this.#stateElement.textContent = result.getError();
+      this.#renderMessage(result.getError());
       this.#scheduleReconnect();
       return;
     }
@@ -208,13 +210,129 @@ class ReactNavigationPanelImpl extends UI.Panel.Panel {
     const snapshot = params.state && typeof params.state === "object" ? params.state : params;
     const updatedAt = params.updatedAt || snapshot.updatedAt || Date.now();
     const routePath = routePathFromSnapshot(snapshot);
+    const items = navigationItemsFromSnapshot(snapshot);
 
     this.#clearReconnect();
     this.#setStatus(snapshot.reason || "Live");
     this.#readyElement.textContent = snapshot.isReady ? "Ready" : "Not ready";
     this.#routeElement.textContent = routePath || "(no route)";
     this.#updatedElement.textContent = formatTimestamp(updatedAt);
-    this.#stateElement.textContent = JSON.stringify(snapshot, null, 2);
+    this.#renderNavigationList(items);
+  }
+
+  #renderMessage(message) {
+    this.#selectedRoute = null;
+    this.#renderDetail(null);
+    this.#routeListElement.replaceChildren();
+    const empty = document.createElement("div");
+    empty.textContent = message;
+    empty.style.color = "var(--sys-color-token-subtle)";
+    empty.style.padding = "12px";
+    this.#routeListElement.appendChild(empty);
+  }
+
+  #renderNavigationList(items) {
+    this.#routeListElement.replaceChildren();
+
+    if (!items.length) {
+      const empty = document.createElement("div");
+      empty.textContent = "No navigation routes received yet.";
+      empty.style.color = "var(--sys-color-token-subtle)";
+      empty.style.padding = "12px";
+      this.#routeListElement.appendChild(empty);
+      this.#selectedRoute = null;
+      this.#renderDetail(null);
+      return;
+    }
+
+    const selectedKey = routeKey(this.#selectedRoute);
+    const updatedSelected = selectedKey ? items.find((item) => routeKey(item.route) === selectedKey)?.route || null : null;
+    if (selectedKey && !updatedSelected) {
+      this.#selectedRoute = null;
+      this.#renderDetail(null);
+    } else if (updatedSelected) {
+      this.#selectedRoute = updatedSelected;
+      this.#renderDetail(updatedSelected);
+    }
+
+    for (const item of items) {
+      const itemKey = routeKey(item.route);
+      const selectedItemKey = routeKey(this.#selectedRoute);
+      const button = document.createElement("button");
+      button.type = "button";
+      button.textContent = routeDisplayName(item.route);
+      button.style.width = "100%";
+      button.style.minHeight = "32px";
+      button.style.padding = "6px 12px";
+      button.style.border = "0";
+      button.style.borderBottom = "1px solid var(--sys-color-divider)";
+      button.style.background = itemKey && itemKey === selectedItemKey ? "rgba(127, 127, 127, 0.16)" : "transparent";
+      button.style.color = "var(--sys-color-on-surface)";
+      button.style.cursor = "pointer";
+      button.style.font = "inherit";
+      button.style.textAlign = "left";
+      button.style.overflow = "hidden";
+      button.style.textOverflow = "ellipsis";
+      button.style.whiteSpace = "nowrap";
+      button.addEventListener("click", () => {
+        this.#selectedRoute = item.route;
+        this.#renderDetail(item.route);
+        this.#renderNavigationList(items);
+      });
+      this.#routeListElement.appendChild(button);
+    }
+  }
+
+  #renderDetail(route) {
+    this.#detailElement.replaceChildren();
+    this.#detailElement.hidden = !route;
+    if (!route) {
+      return;
+    }
+
+    const header = document.createElement("div");
+    header.style.display = "flex";
+    header.style.alignItems = "center";
+    header.style.gap = "8px";
+    header.style.padding = "10px 12px";
+    header.style.borderBottom = "1px solid var(--sys-color-divider)";
+
+    const title = document.createElement("div");
+    title.textContent = routeDisplayName(route);
+    title.style.fontWeight = "600";
+    title.style.minWidth = "0";
+    title.style.overflow = "hidden";
+    title.style.textOverflow = "ellipsis";
+    title.style.whiteSpace = "nowrap";
+    header.appendChild(title);
+
+    const close = document.createElement("button");
+    close.type = "button";
+    close.textContent = "Close";
+    close.style.marginLeft = "auto";
+    close.style.height = "24px";
+    close.addEventListener("click", () => {
+      this.#selectedRoute = null;
+      this.#renderDetail(null);
+      const buttons = this.#routeListElement.querySelectorAll("button");
+      for (const button of buttons) {
+        button.style.background = "transparent";
+      }
+    });
+    header.appendChild(close);
+
+    const fields = document.createElement("div");
+    fields.style.display = "grid";
+    fields.style.gap = "12px";
+    fields.style.padding = "12px";
+
+    fields.append(
+      createDetailField("name", route.name),
+      createDetailField("key", route.key),
+      createDetailField("params", route.params, true)
+    );
+
+    this.#detailElement.append(header, fields);
   }
 
   #buildLayout() {
@@ -261,17 +379,31 @@ class ReactNavigationPanelImpl extends UI.Panel.Panel {
     this.#routeElement = createSummaryCell(summary, "Route");
     this.#updatedElement = createSummaryCell(summary, "Updated");
 
-    this.#stateElement = document.createElement("pre");
-    this.#stateElement.style.flex = "1 1 auto";
-    this.#stateElement.style.margin = "0";
-    this.#stateElement.style.padding = "12px";
-    this.#stateElement.style.overflow = "auto";
-    this.#stateElement.style.userSelect = "text";
-    this.#stateElement.style.whiteSpace = "pre-wrap";
-    this.#stateElement.style.font = "var(--source-code-font-size) var(--source-code-font-family)";
-    this.#stateElement.textContent = "No navigation state received yet.";
+    const body = document.createElement("div");
+    body.style.display = "flex";
+    body.style.flex = "1 1 auto";
+    body.style.minHeight = "0";
 
-    this.contentElement.append(toolbar, summary, this.#stateElement);
+    this.#detailElement = document.createElement("section");
+    this.#detailElement.hidden = true;
+    this.#detailElement.style.flex = "0 0 320px";
+    this.#detailElement.style.minWidth = "240px";
+    this.#detailElement.style.maxWidth = "45%";
+    this.#detailElement.style.borderLeft = "1px solid var(--sys-color-divider)";
+    this.#detailElement.style.overflow = "auto";
+    this.#detailElement.style.userSelect = "text";
+    this.#detailElement.style.background = "var(--sys-color-cdt-base-container)";
+
+    this.#routeListElement = document.createElement("div");
+    this.#routeListElement.style.flex = "1 1 auto";
+    this.#routeListElement.style.minWidth = "0";
+    this.#routeListElement.style.overflow = "auto";
+    this.#routeListElement.style.background = "var(--sys-color-cdt-base-container)";
+    this.#routeListElement.textContent = "No navigation state received yet.";
+
+    body.append(this.#routeListElement, this.#detailElement);
+
+    this.contentElement.append(toolbar, summary, body);
     this.#setStatus("Idle");
   }
 
@@ -319,6 +451,140 @@ function createSummaryCell(parent, label) {
   cell.append(labelElement, valueElement);
   parent.appendChild(cell);
   return valueElement;
+}
+
+function createDetailField(label, value, asJson) {
+  const field = document.createElement("div");
+  field.style.minWidth = "0";
+
+  const labelElement = document.createElement("div");
+  labelElement.textContent = label;
+  labelElement.style.color = "var(--sys-color-token-subtle)";
+  labelElement.style.fontSize = "11px";
+  labelElement.style.marginBottom = "4px";
+
+  const valueElement = document.createElement("pre");
+  valueElement.textContent = formatDetailValue(value, Boolean(asJson));
+  valueElement.style.margin = "0";
+  valueElement.style.overflow = "auto";
+  valueElement.style.whiteSpace = "pre-wrap";
+  valueElement.style.wordBreak = "break-word";
+  valueElement.style.font = "var(--source-code-font-size) var(--source-code-font-family)";
+
+  field.append(labelElement, valueElement);
+  return field;
+}
+
+function formatDetailValue(value, asJson) {
+  if (asJson) {
+    if (typeof value === "undefined") {
+      return "undefined";
+    }
+    try {
+      return JSON.stringify(value, null, 2);
+    } catch {
+      return String(value);
+    }
+  }
+
+  if (value === null) {
+    return "null";
+  }
+  if (typeof value === "undefined") {
+    return "undefined";
+  }
+  return String(value);
+}
+
+function navigationItemsFromSnapshot(snapshot) {
+  const items = [];
+  const state = snapshot && typeof snapshot === "object" ? snapshot.state : null;
+
+  if (isNavigationState(state)) {
+    for (const route of routesForState(state)) {
+      appendVisibleRoutes(items, route);
+    }
+  }
+
+  if (!items.length && snapshot && typeof snapshot === "object" && isRoute(snapshot.currentRoute)) {
+    items.push({ route: snapshot.currentRoute });
+  }
+
+  return items;
+}
+
+function appendVisibleRoutes(items, route) {
+  if (!isRoute(route)) {
+    return;
+  }
+
+  const nestedState = route.state;
+  if (isNavigationState(nestedState)) {
+    const nestedRoutes = routesForState(nestedState);
+    if (nestedRoutes.length) {
+      for (const nestedRoute of nestedRoutes) {
+        appendVisibleRoutes(items, nestedRoute);
+      }
+      return;
+    }
+  }
+
+  items.push({ route });
+}
+
+function routesForState(state) {
+  const routes = Array.isArray(state.routes) ? state.routes.filter(isRoute) : [];
+  const history = Array.isArray(state.history) ? state.history : [];
+  if (!history.length) {
+    return routes;
+  }
+
+  const routesByKey = new Map();
+  for (const route of routes) {
+    const key = routeKey(route);
+    if (key) {
+      routesByKey.set(key, route);
+    }
+  }
+
+  const historyRoutes = [];
+  for (const entry of history) {
+    if (!entry || typeof entry !== "object") {
+      continue;
+    }
+    const key = typeof entry.key === "string" ? entry.key : null;
+    if (!key) {
+      continue;
+    }
+    historyRoutes.push(routesByKey.get(key) || { key, params: null });
+  }
+
+  return historyRoutes.length ? historyRoutes : routes;
+}
+
+function isNavigationState(value) {
+  return Boolean(value && typeof value === "object" && Array.isArray(value.routes));
+}
+
+function isRoute(value) {
+  return Boolean(value && typeof value === "object" && ("name" in value || "key" in value));
+}
+
+function routeDisplayName(route) {
+  if (route && typeof route === "object" && route.name !== null && typeof route.name !== "undefined") {
+    const name = String(route.name).trim();
+    if (name) {
+      return name;
+    }
+  }
+  return "(unnamed route)";
+}
+
+function routeKey(route) {
+  if (!route || typeof route !== "object" || route.key === null || typeof route.key === "undefined") {
+    return null;
+  }
+  return String(route.key);
 }
 
 function routePathFromSnapshot(snapshot) {

@@ -84,7 +84,7 @@ The plugin accepts any ref with the React Navigation-style methods it needs, so 
 
 Passing `patchDebuggerFrontend` to `reactNavigationPlugin` adds a `Navigation` tab to the React Native debugger frontend. The tab registers a custom `ReactNavigation` CDP domain and sends `ReactNavigation.enable`, `ReactNavigation.getState`, and `ReactNavigation.disable` through the existing debugger socket. The devtools server routes those commands to the app that is already bound to that debugger session, using the same app socket mapping as the network plugin.
 
-When the tab is enabled, the app runtime listens to the registered navigation ref and emits `ReactNavigation.stateUpdated` whenever the navigation state changes. The event includes `updatedAt` and a state snapshot with `isReady`, sanitized root `state`, and `currentRoute`. A short polling fallback is used for navigation refs that do not expose a `state` listener.
+When the tab is enabled, the app runtime listens to the registered navigation ref and emits `ReactNavigation.stateUpdated` whenever the navigation state changes. The panel renders the root history as a route list, expands nested navigator routes such as stacks, and opens a closable detail pane with `name`, `key`, and `params` when a route is selected. The event includes `updatedAt` and a state snapshot with `isReady`, sanitized root `state`, and `currentRoute`. A short polling fallback is used for navigation refs that do not expose a `state` listener.
 
 ## Endpoints
 
