@@ -175,9 +175,13 @@ async function collectSiblings(
     }
   }
 
-  await Promise.all(layoutTasks);
+  await Promise.race([
+    Promise.all(layoutTasks),
+    new Promise<void>((resolve) => setTimeout(resolve, MEASURE_LAYOUT_TIMEOUT_MS))
+  ]);
 
   for (const node of createdNodes) {
+    delete node.layoutTarget;
     if (node.children && node.children.length === 0) {
       delete node.children;
     }
@@ -338,12 +342,8 @@ async function measureLayout(
         return;
       }
       settled = true;
-      clearTimeout(timeout);
       resolve(layout);
     };
-    const timeout = setTimeout(() => {
-      settle(undefined);
-    }, MEASURE_LAYOUT_TIMEOUT_MS);
 
     try {
       const handleMeasure: MeasureCallback = (
