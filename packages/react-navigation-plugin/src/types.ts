@@ -7,6 +7,7 @@ export type {
   ReactNavigationPerformParams,
   ReactNavigationResponse,
   ReactNavigationResult,
+  ReactNavigationStateSnapshot,
   ReactNavigationStatus,
   ReactNavigationSuccessResponse,
 } from './shared/protocol';

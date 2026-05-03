@@ -8,6 +8,7 @@ import {
   isNavigationReady,
   type NavigationRefLike,
 } from './navigationRef';
+import { sanitizeJson } from './sanitizeJson';
 
 interface ActionContext {
   requestId: string;
@@ -53,8 +54,8 @@ function getNavigationState(context: ActionContext): ReactNavigationResult {
   return createResult(context, 'getNavigationState', 'ok', {
     value: {
       isReady: isNavigationReady(ref),
-      state: sanitizeJson(ref.getRootState?.()),
-      currentRoute: sanitizeJson(ref.getCurrentRoute?.()),
+      state: sanitizeJson(callRefMethod(ref.getRootState, ref)),
+      currentRoute: sanitizeJson(callRefMethod(ref.getCurrentRoute, ref)),
     },
   });
 }
@@ -79,8 +80,9 @@ function navigate(
     });
   }
 
+  const navigateRef = ref.navigate;
   if (command.key || command.path || command.merge !== undefined) {
-    ref.navigate({
+    navigateRef.call(ref, {
       name: command.name,
       params: command.params,
       key: command.key,
@@ -88,9 +90,9 @@ function navigate(
       merge: command.merge,
     });
   } else if (command.params !== undefined) {
-    ref.navigate(command.name, command.params);
+    navigateRef.call(ref, command.name, command.params);
   } else {
-    ref.navigate(command.name);
+    navigateRef.call(ref, command.name);
   }
 
   return createResult(context, 'navigate', 'ok', {
@@ -108,13 +110,13 @@ function goBack(context: ActionContext): ReactNavigationResult {
       reason: 'The registered navigation ref does not expose goBack().',
     });
   }
-  if (typeof ref.canGoBack === 'function' && !ref.canGoBack()) {
+  if (typeof ref.canGoBack === 'function' && !ref.canGoBack.call(ref)) {
     return createResult(context, 'goBack', 'unsupported', {
       reason: 'The navigation ref reports that it cannot go back.',
     });
   }
 
-  ref.goBack();
+  ref.goBack.call(ref);
   return createResult(context, 'goBack', 'ok', {
     value: getNavigationValue(ref),
   });
@@ -141,9 +143,13 @@ function getReadyNavigationRef(
 
 function getNavigationValue(ref: NavigationRefLike): JSONValue {
   return {
-    state: sanitizeJson(ref.getRootState?.()),
-    currentRoute: sanitizeJson(ref.getCurrentRoute?.()),
+    state: sanitizeJson(callRefMethod(ref.getRootState, ref)),
+    currentRoute: sanitizeJson(callRefMethod(ref.getCurrentRoute, ref)),
   };
+}
+
+function callRefMethod(method: unknown, ref: NavigationRefLike): unknown {
+  return typeof method === 'function' ? method.call(ref) : undefined;
 }
 
 function createResult(
@@ -160,59 +166,4 @@ function createResult(
     status,
     ...extras,
   };
-}
-
-function sanitizeJson(value: unknown): JSONValue {
-  return sanitizeValue(value, 0, new WeakSet<object>()) ?? null;
-}
-
-function sanitizeValue(
-  value: unknown,
-  depth: number,
-  seen: WeakSet<object>
-): JSONValue | undefined {
-  if (value == null) {
-    return null;
-  }
-  if (
-    typeof value === 'string' ||
-    typeof value === 'number' ||
-    typeof value === 'boolean'
-  ) {
-    return Number.isNaN(value) ? null : value;
-  }
-  if (typeof value === 'bigint') {
-    return value.toString();
-  }
-  if (typeof value === 'function' || typeof value === 'symbol') {
-    return undefined;
-  }
-  if (typeof value !== 'object') {
-    return null;
-  }
-  if (seen.has(value)) {
-    return '[Circular]';
-  }
-  if (depth >= 8) {
-    return '[MaxDepth]';
-  }
-
-  seen.add(value);
-  if (Array.isArray(value)) {
-    const items = value
-      .map((item) => sanitizeValue(item, depth + 1, seen))
-      .filter((item): item is JSONValue => item !== undefined);
-    seen.delete(value);
-    return items;
-  }
-
-  const output: Record<string, JSONValue> = {};
-  for (const [key, child] of Object.entries(value)) {
-    const sanitized = sanitizeValue(child, depth + 1, seen);
-    if (sanitized !== undefined) {
-      output[key] = sanitized;
-    }
-  }
-  seen.delete(value);
-  return output;
 }

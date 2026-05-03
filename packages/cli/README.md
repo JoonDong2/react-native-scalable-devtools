@@ -41,12 +41,13 @@ The simplest usage is to install the package, import `startCommand`, and registe
 const { startCommand } = require('@react-native-scalable-devtools/cli');
 const {
   networkPanelPlugin,
-  patchDebuggerFrontend,
+  patchDebuggerFrontend: patchNetworkDebuggerFrontend,
 } = require('@react-native-scalable-devtools/network-plugin');
 const {
   elementInspectorPlugin,
 } = require('@react-native-scalable-devtools/element-inspector-plugin');
 const {
+  patchDebuggerFrontend: patchReactNavigationDebuggerFrontend,
   reactNavigationPlugin,
 } = require('@react-native-scalable-devtools/react-navigation-plugin');
 const {
@@ -56,9 +57,13 @@ const {
 module.exports = {
   commands: [
     startCommand(
-      networkPanelPlugin({ patchDebuggerFrontend }),
+      networkPanelPlugin({
+        patchDebuggerFrontend: patchNetworkDebuggerFrontend,
+      }),
       elementInspectorPlugin(),
-      reactNavigationPlugin(),
+      reactNavigationPlugin({
+        patchDebuggerFrontend: patchReactNavigationDebuggerFrontend,
+      }),
       agentActionsPlugin(),
     ),
   ],
@@ -174,6 +179,7 @@ It is useful because:
 - it keeps React Navigation-specific behavior out of generic UI actions
 - it lets apps register a React Navigation `navigationRef` for agent-driven screen changes
 - it exposes host-side `/react-navigation/state`, `/react-navigation/navigate`, and `/react-navigation/back` endpoints
+- it can patch the React Native debugger frontend with a live `Navigation` tab using the existing app socket mapping
 - it performs navigation inside the app runtime instead of reproducing every tap
 
 This plugin performs JavaScript semantic navigation through React Navigation. It does not simulate native gestures or OS-level back behavior.

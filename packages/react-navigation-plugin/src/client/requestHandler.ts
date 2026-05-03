@@ -1,13 +1,21 @@
 import { DebuggerConnection } from '@react-native-scalable-devtools/cli/client';
 import {
+  REACT_NAVIGATION_CDP_DISABLE_METHOD,
+  REACT_NAVIGATION_CDP_ENABLE_METHOD,
+  REACT_NAVIGATION_CDP_GET_STATE_METHOD,
   REACT_NAVIGATION_PERFORM_METHOD,
   REACT_NAVIGATION_RESULT_METHOD,
   type ReactNavigationPerformParams,
   type ReactNavigationResult,
 } from '../shared/protocol';
 import { performReactNavigationAction } from './actions';
+import {
+  createNavigationStateSnapshot,
+  setReactNavigationStateWatching,
+} from './stateWatcher';
 
 interface AppProxyMessage {
+  id?: number;
   method?: string;
   params?: unknown;
 }
@@ -21,11 +29,20 @@ export function installReactNavigationRequestHandler(): void {
   installed = true;
 
   DebuggerConnection.addEventListener((payload: AppProxyMessage) => {
-    if (payload.method !== REACT_NAVIGATION_PERFORM_METHOD) {
-      return;
+    switch (payload.method) {
+      case REACT_NAVIGATION_PERFORM_METHOD:
+        void handlePerformRequest(payload.params);
+        return;
+      case REACT_NAVIGATION_CDP_ENABLE_METHOD:
+        handleCdpEnableRequest(payload);
+        return;
+      case REACT_NAVIGATION_CDP_DISABLE_METHOD:
+        handleCdpDisableRequest(payload);
+        return;
+      case REACT_NAVIGATION_CDP_GET_STATE_METHOD:
+        handleCdpGetStateRequest(payload);
+        return;
     }
-
-    void handlePerformRequest(payload.params);
   });
 }
 
@@ -46,6 +63,38 @@ async function handlePerformRequest(params: unknown): Promise<void> {
     }
   );
   safeSendResult(result);
+}
+
+function handleCdpEnableRequest(payload: AppProxyMessage): void {
+  setReactNavigationStateWatching(true);
+  sendCdpResult(payload.id, {});
+}
+
+function handleCdpDisableRequest(payload: AppProxyMessage): void {
+  setReactNavigationStateWatching(false);
+  sendCdpResult(payload.id, {});
+}
+
+function handleCdpGetStateRequest(payload: AppProxyMessage): void {
+  const state = createNavigationStateSnapshot();
+  sendCdpResult(payload.id, {
+    state,
+  });
+}
+
+function sendCdpResult(id: number | undefined, result: Record<string, unknown>): void {
+  if (typeof id !== 'number') {
+    return;
+  }
+
+  try {
+    DebuggerConnection.send({
+      id,
+      result,
+    });
+  } catch {
+    // CDP requests are best-effort over the debugger app socket.
+  }
 }
 
 function safeSendResult(result: ReactNavigationResult): void {
