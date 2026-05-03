@@ -2,6 +2,8 @@ export interface ReactFiberLike {
   key?: string | null;
   child?: ReactFiberLike | null;
   sibling?: ReactFiberLike | null;
+  alternate?: ReactFiberLike | null;
+  return?: ReactFiberLike | null;
   elementType?: unknown;
   type?: unknown;
   tag?: number;

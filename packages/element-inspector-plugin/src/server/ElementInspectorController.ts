@@ -2,6 +2,7 @@ import type { PluginEndpointContext } from '@react-native-scalable-devtools/cli/
 import {
   ELEMENT_INSPECTOR_GET_TREE_METHOD,
   ELEMENT_INSPECTOR_SNAPSHOT_METHOD,
+  ELEMENT_INSPECTOR_SNAPSHOT_CHUNK_METHOD,
   type ElementInspectorDevice,
   type ElementInspectorErrorResponse,
   type ElementInspectorGetTreeParams,
@@ -13,6 +14,23 @@ import { createRequestId } from './createRequestId';
 interface AppProxyMessage {
   method?: string;
   params?: unknown;
+}
+
+// Android RN WebSocket이 큰 단일 프레임을 침묵 드롭하는 경우가 있어 청킹 전송을 받는다.
+const chunkBuffers = new Map<string, { totalChunks: number, parts: string[], received: number }>();
+
+function parseChunk(value: unknown): { requestId: string, chunkIndex: number, totalChunks: number, payload: string } | null {
+  const v = typeof value === 'string' ? (() => { try { return JSON.parse(value); } catch { return null; } })() : value as any;
+  if (!v || typeof v !== 'object') return null;
+  if (
+    typeof v.requestId !== 'string' ||
+    typeof v.chunkIndex !== 'number' ||
+    typeof v.totalChunks !== 'number' ||
+    typeof v.payload !== 'string'
+  ) {
+    return null;
+  }
+  return v;
 }
 
 const SNAPSHOT_REQUEST_TIMEOUT_MS = 30000;
@@ -95,6 +113,7 @@ export class ElementInspectorController {
     return new Promise<ControllerSnapshotResult>((resolve) => {
       const timeout = setTimeout(() => {
         this.#pendingRequests.delete(requestId);
+        chunkBuffers.delete(requestId);
         resolve({
           ok: false,
           statusCode: 504,
@@ -157,15 +176,34 @@ export class ElementInspectorController {
     payload: AppProxyMessage,
     target: ElementInspectorDevice
   ): void {
-    if (payload.method !== ELEMENT_INSPECTOR_SNAPSHOT_METHOD) {
+    if (payload.method === ELEMENT_INSPECTOR_SNAPSHOT_METHOD) {
+      const snapshot = parseSnapshot(payload.params);
+      if (snapshot) this.deliverSnapshot(snapshot, target);
       return;
     }
-
-    const snapshot = parseSnapshot(payload.params);
-    if (!snapshot) {
+    if (payload.method === ELEMENT_INSPECTOR_SNAPSHOT_CHUNK_METHOD) {
+      const chunk = parseChunk(payload.params);
+      if (!chunk) return;
+      let buffer = chunkBuffers.get(chunk.requestId);
+      if (!buffer) {
+        buffer = { totalChunks: chunk.totalChunks, parts: new Array(chunk.totalChunks), received: 0 };
+        chunkBuffers.set(chunk.requestId, buffer);
+      }
+      if (buffer.parts[chunk.chunkIndex] === undefined) {
+        buffer.parts[chunk.chunkIndex] = chunk.payload;
+        buffer.received += 1;
+      }
+      if (buffer.received === buffer.totalChunks) {
+        chunkBuffers.delete(chunk.requestId);
+        const assembled = buffer.parts.join('');
+        const snapshot = parseSnapshot(assembled);
+        if (snapshot) this.deliverSnapshot(snapshot, target);
+      }
       return;
     }
+  }
 
+  deliverSnapshot(snapshot: ElementInspectorSnapshot, target: ElementInspectorDevice) {
     const pending = this.#pendingRequests.get(snapshot.requestId);
     if (!pending || !isSameDevice(pending.device, target)) {
       return;

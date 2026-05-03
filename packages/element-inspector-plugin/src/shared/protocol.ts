@@ -1,6 +1,7 @@
 export const ELEMENT_INSPECTOR_ENDPOINT = '/element-inspector';
 export const ELEMENT_INSPECTOR_GET_TREE_METHOD = 'ElementInspector.getTree';
 export const ELEMENT_INSPECTOR_SNAPSHOT_METHOD = 'ElementInspector.snapshot';
+export const ELEMENT_INSPECTOR_SNAPSHOT_CHUNK_METHOD = 'ElementInspector.snapshotChunk';
 
 export type ElementInspectorStatus = 'ok' | 'unsupported' | 'error';
 

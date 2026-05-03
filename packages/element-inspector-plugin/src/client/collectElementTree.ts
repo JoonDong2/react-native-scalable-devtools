@@ -294,6 +294,33 @@ function getProps(
     : undefined;
 }
 
+// 안드로이드에서 stale view tag로 measure가 호출되어 callback이 누락되는 것을 막기 위해
+// host fiber의 stateNode가 살아있는지 검사한다.
+function isLiveHostFiber(fiber: ReactFiberLike): boolean {
+  const node = fiber?.stateNode;
+  if (!node || typeof node !== 'object') {
+    return false;
+  }
+
+  // 트리에서 분리된 fiber는 return 포인터가 없다 (root 제외)
+  if (!fiber.return && fiber.tag !== 3) {
+    return false;
+  }
+
+  const directTag = getObjectValue(node, '_nativeTag');
+  if (typeof directTag === 'number' && directTag <= 0) {
+    return false;
+  }
+
+  const canonical = getObjectValue(node, 'canonical');
+  const canonicalTag = getObjectValue(canonical, 'nativeTag');
+  if (typeof canonicalTag === 'number' && canonicalTag <= 0) {
+    return false;
+  }
+
+  return true;
+}
+
 function findInspectableHostFiber(
   fiber: ReactFiberLike | null | undefined
 ): ReactFiberLike | null {
@@ -302,6 +329,10 @@ function findInspectableHostFiber(
   }
 
   const visited = new Set<ReactFiberLike>();
+  // workInProgress(alternate) 트리를 따라가지 않게 미리 visited에 등록한다.
+  if (fiber.alternate) {
+    visited.add(fiber.alternate);
+  }
   const stack: ReactFiberLike[] = [fiber];
 
   while (stack.length > 0) {
@@ -311,7 +342,10 @@ function findInspectableHostFiber(
     }
 
     visited.add(current);
-    if (current.tag === 5) {
+    if (current.alternate) {
+      visited.add(current.alternate);
+    }
+    if (current.tag === 5 && isLiveHostFiber(current)) {
       return current;
     }
 

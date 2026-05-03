@@ -2,6 +2,7 @@ import { DebuggerConnection } from '@react-native-scalable-devtools/cli/client';
 import {
   ELEMENT_INSPECTOR_GET_TREE_METHOD,
   ELEMENT_INSPECTOR_SNAPSHOT_METHOD,
+  ELEMENT_INSPECTOR_SNAPSHOT_CHUNK_METHOD,
   type ElementInspectorGetTreeParams,
   type ElementInspectorSnapshot,
 } from '../shared/protocol';
@@ -12,6 +13,9 @@ interface AppProxyMessage {
   method?: string;
   params?: unknown;
 }
+
+// Android RN WebSocket이 수 MB 단일 프레임을 침묵 드롭하는 경우가 있어 청킹 전송을 사용한다.
+const SNAPSHOT_CHUNK_SIZE = 65536;
 
 let installed = false;
 
@@ -56,25 +60,35 @@ async function safeCollectElementTree(
   }
 }
 
+function sendSnapshotChunks(snapshot: ElementInspectorSnapshot): void {
+  const stringified = stringifyJson(snapshot);
+  const total = Math.max(1, Math.ceil(stringified.length / SNAPSHOT_CHUNK_SIZE));
+  for (let i = 0; i < total; i += 1) {
+    const start = i * SNAPSHOT_CHUNK_SIZE;
+    const payload = stringified.slice(start, start + SNAPSHOT_CHUNK_SIZE);
+    DebuggerConnection.send(
+      stringifyJson({
+        method: ELEMENT_INSPECTOR_SNAPSHOT_CHUNK_METHOD,
+        params: stringifyJson({
+          requestId: snapshot.requestId,
+          chunkIndex: i,
+          totalChunks: total,
+          payload,
+        }),
+      })
+    );
+  }
+}
+
 function safeSendSnapshot(
   snapshot: ElementInspectorSnapshot,
   request: ElementInspectorGetTreeParams
 ): void {
   try {
-    DebuggerConnection.send(
-      stringifyJson({
-        method: ELEMENT_INSPECTOR_SNAPSHOT_METHOD,
-        params: stringifyJson(snapshot),
-      })
-    );
+    sendSnapshotChunks(snapshot);
   } catch (error) {
     try {
-      DebuggerConnection.send(
-        stringifyJson({
-          method: ELEMENT_INSPECTOR_SNAPSHOT_METHOD,
-          params: stringifyJson(createErrorSnapshot(request, error)),
-        })
-      );
+      sendSnapshotChunks(createErrorSnapshot(request, error));
     } catch {
       // Avoid surfacing an unhandled promise rejection from the inspector path.
     }
