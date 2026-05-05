@@ -35,7 +35,7 @@ export class ReactQueryDomain implements InspectorDomainContribution {
     if (!payload.method || !SUPPORTED_DEBUGGER_METHODS.has(payload.method)) {
       this.#sendError(
         payload.id,
-        `Unsupported React Query debugger method: ${payload.method ?? 'unknown'}`
+        `Unsupported Tanstack Query debugger method: ${payload.method ?? 'unknown'}`
       );
       return true;
     }

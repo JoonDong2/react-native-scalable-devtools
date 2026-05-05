@@ -19,7 +19,7 @@ const reactQueryPluginDefinition: ScalableDebuggerPlugin = {
   domains: [createReactQueryDomain],
   clientEntries: [
     {
-      importPath: '@react-native-scalable-devtools/react-query-plugin/client',
+      importPath: '@react-native-scalable-devtools/tanstack-query-plugin/client',
     },
   ],
   middlewareEndpoints: createReactQueryMiddlewareEndpoints(controller),

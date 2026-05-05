@@ -1,8 +1,8 @@
-# @react-native-scalable-devtools/react-query-plugin
+# @react-native-scalable-devtools/tanstack-query-plugin
 
 [한국어](README.ko.md)
 
-This plugin lets the React Native debugger frontend inspect a registered React Query or TanStack Query `QueryClient` in real time. It adds a `Queries` tab that shows query keys as a list, and selecting a query opens a closable detail pane with the selected query key, data, state, and error.
+This plugin lets the React Native debugger frontend inspect a registered Tanstack Query or TanStack Query `QueryClient` in real time. It adds a `Queries` tab that shows query keys as a list, and selecting a query opens a closable detail pane with the selected query key, data, state, and error.
 
 The plugin does not create or discover a `QueryClient` automatically. Register the app's client directly from your runtime code.
 
@@ -15,7 +15,7 @@ const { startCommand } = require('@react-native-scalable-devtools/cli');
 const {
   patchDebuggerFrontend,
   reactQueryPlugin,
-} = require('@react-native-scalable-devtools/react-query-plugin');
+} = require('@react-native-scalable-devtools/tanstack-query-plugin');
 
 module.exports = {
   commands: [
@@ -38,7 +38,7 @@ const {
 const {
   patchDebuggerFrontend: patchReactQueryDebuggerFrontend,
   reactQueryPlugin,
-} = require('@react-native-scalable-devtools/react-query-plugin');
+} = require('@react-native-scalable-devtools/tanstack-query-plugin');
 
 module.exports = {
   commands: [
@@ -58,11 +58,13 @@ Call `registerQueryClient(queryClient)` in the app runtime after creating the Qu
 
 ```tsx
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { registerQueryClient } from '@react-native-scalable-devtools/react-query-plugin/client';
+import { registerQueryClient } from '@react-native-scalable-devtools/tanstack-query-plugin/client';
 
 const queryClient = new QueryClient();
 
-registerQueryClient(queryClient);
+if (__DEV__) {
+  registerQueryClient(queryClient);
+}
 
 export function App() {
   return (
@@ -73,7 +75,7 @@ export function App() {
 }
 ```
 
-The plugin accepts any client with React Query-style `getQueryCache().getAll()` and `getQueryCache().subscribe(...)` methods, so it does not import `@tanstack/react-query` directly.
+The plugin accepts any client with Tanstack Query-style `getQueryCache().getAll()` and `getQueryCache().subscribe(...)` methods, so it does not import `@tanstack/react-query` directly.
 
 ## Debugger Frontend
 

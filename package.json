@@ -6,9 +6,9 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "yarn workspace @react-native-scalable-devtools/cli build && yarn workspace @react-native-scalable-devtools/network-plugin build && yarn workspace @react-native-scalable-devtools/element-inspector-plugin build && yarn workspace @react-native-scalable-devtools/react-navigation-plugin build && yarn workspace @react-native-scalable-devtools/react-query-plugin build",
-    "typecheck": "yarn workspace @react-native-scalable-devtools/cli typecheck && yarn workspace @react-native-scalable-devtools/network-plugin typecheck && yarn workspace @react-native-scalable-devtools/element-inspector-plugin typecheck && yarn workspace @react-native-scalable-devtools/react-navigation-plugin typecheck && yarn workspace @react-native-scalable-devtools/react-query-plugin typecheck",
-    "test": "yarn workspace @react-native-scalable-devtools/cli test && yarn workspace @react-native-scalable-devtools/network-plugin test && yarn workspace @react-native-scalable-devtools/element-inspector-plugin test && yarn workspace @react-native-scalable-devtools/react-navigation-plugin test && yarn workspace @react-native-scalable-devtools/react-query-plugin test"
+    "build": "yarn workspace @react-native-scalable-devtools/cli build && yarn workspace @react-native-scalable-devtools/network-plugin build && yarn workspace @react-native-scalable-devtools/element-inspector-plugin build && yarn workspace @react-native-scalable-devtools/react-navigation-plugin build && yarn workspace @react-native-scalable-devtools/tanstack-query-plugin build",
+    "typecheck": "yarn workspace @react-native-scalable-devtools/cli typecheck && yarn workspace @react-native-scalable-devtools/network-plugin typecheck && yarn workspace @react-native-scalable-devtools/element-inspector-plugin typecheck && yarn workspace @react-native-scalable-devtools/react-navigation-plugin typecheck && yarn workspace @react-native-scalable-devtools/tanstack-query-plugin typecheck",
+    "test": "yarn workspace @react-native-scalable-devtools/cli test && yarn workspace @react-native-scalable-devtools/network-plugin test && yarn workspace @react-native-scalable-devtools/element-inspector-plugin test && yarn workspace @react-native-scalable-devtools/react-navigation-plugin test && yarn workspace @react-native-scalable-devtools/tanstack-query-plugin test"
   },
   "devDependencies": {
     "@react-native-community/cli-types": "18.0.0",

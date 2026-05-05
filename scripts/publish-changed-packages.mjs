@@ -31,8 +31,8 @@ const PACKAGES = [
     directory: 'packages/react-navigation-plugin',
   },
   {
-    name: '@react-native-scalable-devtools/react-query-plugin',
-    directory: 'packages/react-query-plugin',
+    name: '@react-native-scalable-devtools/tanstack-query-plugin',
+    directory: 'packages/tanstack-query-plugin',
   },
 ];
 

@@ -13,7 +13,7 @@
 - 디버거 서버를 실행하는 대체 `startCommand`
 - 연결된 React Native 앱을 추적하는 AppProxy
 - 요청을 올바른 앱으로 보내기 위한 공용 `appId` selector
-- network, element inspector, React Navigation, React Query plugin이 사용하는 플러그인 API
+- network, element inspector, React Navigation, Tanstack Query plugin이 사용하는 플러그인 API
 - 커스텀 HTTP endpoint, WebSocket endpoint, 디버거 프로토콜 동작을 위한 hook
 
 하나의 앱이든 여러 앱이든, 이 패키지는 연결 모델과 플러그인 통합을 한 곳에 모아두는 계층입니다.
@@ -53,7 +53,7 @@ const {
 const {
   patchDebuggerFrontend: patchReactQueryDebuggerFrontend,
   reactQueryPlugin,
-} = require('@react-native-scalable-devtools/react-query-plugin');
+} = require('@react-native-scalable-devtools/tanstack-query-plugin');
 
 module.exports = {
   commands: [
@@ -186,9 +186,9 @@ core package는 의도적으로 작게 유지합니다. 특별한 동작은 plug
 
 이 plugin은 React Navigation을 통한 JavaScript semantic navigation을 수행합니다. Native gesture나 OS-level back 동작을 시뮬레이션하지는 않습니다.
 
-### `@react-native-scalable-devtools/react-query-plugin`
+### `@react-native-scalable-devtools/tanstack-query-plugin`
 
-이 plugin은 등록된 React Query 또는 TanStack Query `QueryClient`를 debugger frontend나 host-side endpoint에서 확인해야 할 때 사용합니다.
+이 plugin은 등록된 Tanstack Query 또는 TanStack Query `QueryClient`를 debugger frontend나 host-side endpoint에서 확인해야 할 때 사용합니다.
 
 필요한 이유:
 

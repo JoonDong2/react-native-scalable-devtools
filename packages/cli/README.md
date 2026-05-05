@@ -13,7 +13,7 @@ It provides:
 - a replacement `startCommand` for launching the debugger server
 - an AppProxy that tracks connected React Native apps
 - a public `appId` selector for routing requests to the right app
-- the plugin API used by the network, element inspector, React Navigation, and React Query plugins
+- the plugin API used by the network, element inspector, React Navigation, and Tanstack Query plugins
 - hooks for custom HTTP endpoints, WebSocket endpoints, and debugger protocol behavior
 
 If you are building a debugger workflow for one app or many apps, this package is the layer that keeps the connection model and plugin integration in one place.
@@ -53,7 +53,7 @@ const {
 const {
   patchDebuggerFrontend: patchReactQueryDebuggerFrontend,
   reactQueryPlugin,
-} = require('@react-native-scalable-devtools/react-query-plugin');
+} = require('@react-native-scalable-devtools/tanstack-query-plugin');
 
 module.exports = {
   commands: [
@@ -186,9 +186,9 @@ It is useful because:
 
 This plugin performs JavaScript semantic navigation through React Navigation. It does not simulate native gestures or OS-level back behavior.
 
-### `@react-native-scalable-devtools/react-query-plugin`
+### `@react-native-scalable-devtools/tanstack-query-plugin`
 
-Use this plugin when you need to inspect a registered React Query or TanStack Query `QueryClient` from the debugger frontend or from a host-side endpoint.
+Use this plugin when you need to inspect a registered Tanstack Query or TanStack Query `QueryClient` from the debugger frontend or from a host-side endpoint.
 
 It is useful because:
 

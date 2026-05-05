@@ -1,8 +1,8 @@
-# @react-native-scalable-devtools/react-query-plugin
+# @react-native-scalable-devtools/tanstack-query-plugin
 
 [English](README.md)
 
-이 plugin은 React Native debugger frontend에서 등록된 React Query 또는 TanStack Query `QueryClient`를 실시간으로 확인할 수 있게 합니다. `Queries` 탭을 추가하고 query key를 list 형태로 보여 주며, query를 선택하면 오른쪽에 선택한 query key, data, state, error를 담은 닫을 수 있는 detail pane을 엽니다.
+이 plugin은 React Native debugger frontend에서 등록된 Tanstack Query 또는 TanStack Query `QueryClient`를 실시간으로 확인할 수 있게 합니다. `Queries` 탭을 추가하고 query key를 list 형태로 보여 주며, query를 선택하면 오른쪽에 선택한 query key, data, state, error를 담은 닫을 수 있는 detail pane을 엽니다.
 
 이 plugin은 `QueryClient`를 자동으로 만들거나 찾지 않습니다. 앱 runtime code에서 사용하는 client를 직접 등록해야 합니다.
 
@@ -15,7 +15,7 @@ const { startCommand } = require('@react-native-scalable-devtools/cli');
 const {
   patchDebuggerFrontend,
   reactQueryPlugin,
-} = require('@react-native-scalable-devtools/react-query-plugin');
+} = require('@react-native-scalable-devtools/tanstack-query-plugin');
 
 module.exports = {
   commands: [
@@ -38,7 +38,7 @@ const {
 const {
   patchDebuggerFrontend: patchReactQueryDebuggerFrontend,
   reactQueryPlugin,
-} = require('@react-native-scalable-devtools/react-query-plugin');
+} = require('@react-native-scalable-devtools/tanstack-query-plugin');
 
 module.exports = {
   commands: [
@@ -58,9 +58,11 @@ module.exports = {
 
 ```tsx
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { registerQueryClient } from '@react-native-scalable-devtools/react-query-plugin/client';
+import { registerQueryClient } from '@react-native-scalable-devtools/tanstack-query-plugin/client';
 
-const queryClient = new QueryClient();
+if (__DEV__) {
+  registerQueryClient(queryClient);
+}
 
 registerQueryClient(queryClient);
 
@@ -73,7 +75,7 @@ export function App() {
 }
 ```
 
-이 plugin은 React Query style의 `getQueryCache().getAll()`과 `getQueryCache().subscribe(...)` method를 가진 client를 구조적으로 받으므로 `@tanstack/react-query`를 직접 import하지 않습니다.
+이 plugin은 Tanstack Query style의 `getQueryCache().getAll()`과 `getQueryCache().subscribe(...)` method를 가진 client를 구조적으로 받으므로 `@tanstack/react-query`를 직접 import하지 않습니다.
 
 ## Debugger Frontend
 

@@ -73,9 +73,9 @@ const str = i18n.i18n.registerUIStrings("panels/react_query/react_query-meta.ts"
 const i18nString = i18n.i18n.getLazilyComputedLocalizedString.bind(void 0, str);
 const backend = ProtocolClient.InspectorBackend.inspectorBackend;
 
-backend.registerCommand("ReactQuery.enable", [], [], "Enable React Query cache updates.");
-backend.registerCommand("ReactQuery.disable", [], [], "Disable React Query cache updates.");
-backend.registerCommand("ReactQuery.getQueries", [], ["snapshot"], "Get the latest React Query cache snapshot.");
+backend.registerCommand("ReactQuery.enable", [], [], "Enable Tanstack Query cache updates.");
+backend.registerCommand("ReactQuery.disable", [], [], "Disable Tanstack Query cache updates.");
+backend.registerCommand("ReactQuery.getQueries", [], ["snapshot"], "Get the latest Tanstack Query cache snapshot.");
 backend.registerEvent("ReactQuery.queriesUpdated", ["snapshot", "updatedAt"]);
 
 let loadedPanel;
@@ -238,7 +238,7 @@ class ReactQueryPanelImpl extends UI.Panel.Panel {
 
     if (!queries.length) {
       const empty = document.createElement("div");
-      empty.textContent = reason || "No React Query cache entries received yet.";
+      empty.textContent = reason || "No Tanstack Query cache entries received yet.";
       empty.style.color = "var(--sys-color-token-subtle)";
       empty.style.padding = "12px";
       this.#queryListElement.appendChild(empty);
@@ -394,7 +394,7 @@ class ReactQueryPanelImpl extends UI.Panel.Panel {
     toolbar.style.borderBottom = "1px solid var(--sys-color-divider)";
 
     const title = document.createElement("div");
-    title.textContent = "React Query";
+    title.textContent = "Tanstack Query";
     title.style.fontWeight = "600";
     toolbar.appendChild(title);
 

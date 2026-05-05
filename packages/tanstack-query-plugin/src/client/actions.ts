@@ -16,7 +16,7 @@ export async function performReactQueryAction(
         return getQueries(context);
       default:
         return createResult(context, action, 'unsupported', {
-          reason: `Unsupported React Query action: ${action}`,
+          reason: `Unsupported Tanstack Query action: ${action}`,
         });
     }
   } catch (error) {
