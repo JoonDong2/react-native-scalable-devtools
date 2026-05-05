@@ -174,15 +174,14 @@ The image is stored next to this README for documentation only. It is not listed
 
 ### `@react-native-scalable-devtools/react-navigation-plugin`
 
-Use this plugin when an external agent needs to read registered React Navigation state, navigate with a registered `navigationRef`, or go back.
+Use this plugin when an external agent needs to register a React Navigation `navigationRef` and inspect navigation state live in the debugger frontend.
 
 It is useful because:
 
 - it keeps React Navigation-specific behavior out of generic UI actions
-- it lets apps register a React Navigation `navigationRef` for agent-driven screen changes
-- it exposes host-side `/react-navigation/state`, `/react-navigation/navigate`, and `/react-navigation/back` endpoints
+- it lets apps register a React Navigation `navigationRef` for agent-driven state observation
 - it can patch the React Native debugger frontend with a live `Navigation` tab using the existing app socket mapping
-- it performs navigation inside the app runtime instead of reproducing every tap
+- it keeps navigation-specific UI out of the host-side HTTP surface
 
 This plugin performs JavaScript semantic navigation through React Navigation. It does not simulate native gestures or OS-level back behavior.
 
@@ -259,6 +258,5 @@ The package still exposes the same core behavior as before:
 
 - `GET /apps` returns connected apps and their metadata
 - `GET /element-inspector` requests a fresh tree snapshot from the app runtime
-- `POST /react-navigation/navigate` and `/react-navigation/back` ask the app runtime to perform semantic React Navigation actions
 - `appId` remains the public selector for external requests
 - `deviceInfo.deviceId` stays available for tools that need the underlying device id

@@ -174,15 +174,14 @@ core package는 의도적으로 작게 유지합니다. 특별한 동작은 plug
 
 ### `@react-native-scalable-devtools/react-navigation-plugin`
 
-이 plugin은 외부 agent가 등록된 React Navigation state를 읽고, 등록된 `navigationRef`로 navigate 하거나 go back 해야 할 때 사용합니다.
+이 plugin은 외부 agent가 React Navigation `navigationRef`를 등록하고 debugger frontend에서 navigation state를 실시간으로 확인해야 할 때 사용합니다.
 
 필요한 이유:
 
 - React Navigation 관련 동작을 일반 UI action에서 분리해 둡니다.
-- 앱이 React Navigation `navigationRef`를 등록해서 agent가 화면을 이동할 수 있게 합니다.
-- host-side `/react-navigation/state`, `/react-navigation/navigate`, `/react-navigation/back` endpoint를 제공합니다.
+- 앱이 React Navigation `navigationRef`를 등록해서 agent가 state를 관찰할 수 있게 합니다.
 - 기존 app socket mapping을 사용하는 live `Navigation` 탭을 React Native debugger frontend에 추가할 수 있습니다.
-- 모든 tap을 재현하지 않고 app runtime 안에서 navigation을 실행합니다.
+- host-side HTTP surface에 navigation 전용 UI를 노출하지 않습니다.
 
 이 plugin은 React Navigation을 통한 JavaScript semantic navigation을 수행합니다. Native gesture나 OS-level back 동작을 시뮬레이션하지는 않습니다.
 
@@ -259,6 +258,5 @@ plugin capabilities:
 
 - `GET /apps`는 연결된 앱과 metadata를 반환합니다.
 - `GET /element-inspector`는 앱 runtime에서 새 tree snapshot을 요청합니다.
-- `POST /react-navigation/navigate`와 `/react-navigation/back`은 앱 runtime에 semantic React Navigation action 수행을 요청합니다.
 - `appId`는 외부 요청의 public selector로 유지됩니다.
 - `deviceInfo.deviceId`는 device id가 필요한 도구를 위해 계속 제공됩니다.
