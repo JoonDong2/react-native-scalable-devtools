@@ -1,6 +1,6 @@
 {
   "name": "@react-native-scalable-devtools/tanstack-query-plugin",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/JoonDong2/react-native-scalable-devtools.git",
