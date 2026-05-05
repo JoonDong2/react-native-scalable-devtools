@@ -65,7 +65,10 @@ import { registerNavigationRef } from '@react-native-scalable-devtools/react-nav
 
 export const navigationRef = createNavigationContainerRef();
 
-registerNavigationRef(navigationRef);
+if (__DEV__) {
+  registerNavigationRef(navigationRef);
+}
+
 ```
 
 ```tsx
