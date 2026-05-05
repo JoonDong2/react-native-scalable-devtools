@@ -16,7 +16,7 @@ Maestro can still tap without `testID` or accessibility metadata when a target h
 
 The element-inspector plus agent-actions flow is different:
 
-1. Call `/element-inspector?appId=<appId>&plain=1&compact=2` to observe the current React Native tree.
+1. Call `/element-inspector?appId=<appId>&plain=1&nodeId=1` to observe the current React Native tree with node ids.
 2. Let the agent choose an action candidate by `id`, `text`, `testID`, `nativeID`, `accessibilityLabel`, `type`, `displayName`, or layout.
 3. Call `/agent-actions/press` or `/agent-actions/scroll` with that target.
 
@@ -24,7 +24,7 @@ This is faster and more deterministic for development-time agent workflows becau
 
 This combination can also control the app more precisely than a pure black-box flow. The agent can inspect the current React tree with node ids, layout bounds, text, and selected props, then target the exact Fiber node it chose instead of approximating the interaction through visible text, accessibility labels, or screen coordinates. That is useful for dense screens, repeated labels, nested touch targets, scroll containers, and agent loops that need to observe a state, choose one candidate, act, and observe again.
 
-The tradeoff is that these are semantic JavaScript actions, not native user gestures. `/agent-actions/press` finds the matched Fiber node and invokes the nearest enabled `onPress`; `/agent-actions/scroll` calls supported scroll methods. Complex `react-native-gesture-handler` gestures, drag interactions, native-only controls, OS dialogs, and anything outside the React Native tree may still need Maestro or another native automation tool. `compact=2` includes common gesture-handler surfaces in the observation output so an agent can reason about them, but action execution still depends on what the runtime exposes.
+The tradeoff is that these are semantic JavaScript actions, not native user gestures. `/agent-actions/press` finds the matched Fiber node and invokes the nearest enabled `onPress`; `/agent-actions/scroll` calls supported scroll methods. Complex `react-native-gesture-handler` gestures, drag interactions, native-only controls, OS dialogs, and anything outside the React Native tree may still need Maestro or another native automation tool. Action execution depends on what the runtime exposes.
 
 ## Usage
 
@@ -57,10 +57,12 @@ curl -s "http://localhost:8081/apps"
 ### Observe the UI with element inspector
 
 ```sh
-curl -s "http://localhost:8081/element-inspector?appId=<appId>&plain=1&compact=2"
+curl -s "http://localhost:8081/element-inspector?appId=<appId>&plain=1&nodeId=1"
 ```
 
-Raw element-tree observation and target selection belong to the element inspector plugin. `compact=2` keeps touchable, scrollable, text, and image nodes with node `id` values by default, so an agent should choose an `id` from that compressed tree and pass it back to `/agent-actions/press` or `/agent-actions/scroll`.
+Raw element-tree observation and target selection belong to the element inspector plugin. Pass `nodeId=1` when the agent needs to act on the observed node by id, then pass the chosen `id` back to `/agent-actions/press` or `/agent-actions/scroll`.
+
+An LLM agent can also request the JSON response from `/element-inspector`, traverse the tree itself, and use the matching node or path it finds for control. This is useful when the agent needs exact hierarchy, layout, props, or child relationships before deciding which node to press or scroll. Sending the entire JSON tree to an LLM can consume a large number of tokens, so prefer narrowing the tree first with `start`, requesting plain text when hierarchy is enough, or extracting only the fields and subtree the agent needs.
 
 ### Press
 

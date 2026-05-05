@@ -104,7 +104,6 @@ element inspector plugin은 root node 선택, wrapper flatten, plain text 변환
 
 - `start`: 응답의 root로 사용할 component 이름
 - `compact=1`: zero-size node를 제거하고 단순 wrapper pair를 flatten하여 노이즈를 줄임
-- `compact=2`: 주요 `react-native-gesture-handler` touch surface를 포함해 터치 가능, 스크롤 가능, text, image node만 agent-action target field와 함께 유지
 - `plain=1`: JSON 대신 들여쓰기된 `text/plain` tree를 반환
 - `layoutPrecision`: layout 값의 소수점 자릿수 제어
 - `nodeId`: `1`을 전달하면 compact/plain output에 node id를 포함하고, `0`을 전달하면 JSON output에서 node id를 제거

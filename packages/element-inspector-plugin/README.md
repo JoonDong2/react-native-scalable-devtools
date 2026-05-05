@@ -42,12 +42,12 @@ Supported query parameters:
 
 - `appId`: connected app id from `GET /apps`
 - `start`: choose a component name as the response root
-- `compact`: pass `1` to remove zero-size nodes, flatten simple wrapper pairs, and trim the response to the most useful fields; pass `2` to keep only touchable, scrollable, text, and image nodes with the fields needed by agent actions. The touchable filter includes React Native `Pressable`/`Touchable*` elements and common `react-native-gesture-handler` components such as `GestureDetector`, `TapGestureHandler`, `Swipeable`, and RNGH button components.
+- `compact`: pass `1` to remove zero-size nodes, flatten simple wrapper pairs, and trim the response to the most useful fields
 - `plain`: pass `1` to return an indented `text/plain` tree instead of JSON
 - `layoutPrecision`: number of decimal places to keep in `layout` values
-- `nodeId`: controls node id output. Pass `1` to include node ids, or `0` to remove them from JSON output. When omitted, the default JSON response keeps node ids, `compact=2` keeps node ids, and other compact/plain output omits them.
+- `nodeId`: controls node id output. Pass `1` to include node ids, or `0` to remove them from JSON output. When omitted, the default JSON response keeps node ids, and compact/plain output omits them.
 
-`compact` accepts `1` and `2`. Only the value `1` enables `plain`. Empty values, missing values, and `0` leave the mode disabled.
+The only supported compact mode is `compact=1`. Empty values, missing values, and `0` leave the mode disabled.
 
 When `compact` and `plain=1` are used together, the tree is compacted first and then rendered as plain text.
 When `plain=1` is enabled, `displayName` replaces the node label when it is available.
@@ -57,10 +57,8 @@ Examples:
 ```sh
 curl -s "http://localhost:8081/element-inspector?appId=<appId>&start=RCTView"
 curl -s "http://localhost:8081/element-inspector?appId=<appId>&compact=1"
-curl -s "http://localhost:8081/element-inspector?appId=<appId>&compact=2"
 curl -s "http://localhost:8081/element-inspector?appId=<appId>&plain=1"
 curl -s "http://localhost:8081/element-inspector?appId=<appId>&compact=1&plain=1"
-curl -s "http://localhost:8081/element-inspector?appId=<appId>&compact=2&plain=1"
 curl -s "http://localhost:8081/element-inspector?appId=<appId>&layoutPrecision=2"
 ```
 
@@ -74,7 +72,7 @@ The element inspector plugin helps reduce token and context usage by letting you
 
 From the host, you can inspect the live element tree without attaching a visual debugger or taking a screenshot first.
 
-Plain output uses two spaces per depth and renders each node as `Type "text" [x,y,width,height] style={...}` when text, layout, and style props are available. When target props such as `testID`, `nativeID`, or `accessibilityLabel` are present, they are rendered as `props={...}`. When `nodeId=1` is enabled, or when `compact=2` is used without `nodeId=0`, the node id is rendered as `id=<id>`. The `style` field uses a compact representation that omits quotes around identifier-like keys. `layout` values use the same decimal precision as the JSON response and default to one decimal place.
+Plain output uses two spaces per depth and renders each node as `Type "text" [x,y,width,height] style={...}` when text, layout, and style props are available. When target props such as `testID`, `nativeID`, or `accessibilityLabel` are present, they are rendered as `props={...}`. When `nodeId=1` is enabled, the node id is rendered as `id=<id>`. The `style` field uses a compact representation that omits quotes around identifier-like keys. `layout` values use the same decimal precision as the JSON response and default to one decimal place.
 
 ```text
 RCTView id=root.0 [0,0,390,844]
@@ -87,9 +85,7 @@ Snapshots omit React Native development UI nodes named `DebuggingOverlay` and `L
 
 JSON responses include `displayName` on element nodes. When a component does not define `displayName`, the field falls back to the node `type`.
 
-Compact JSON and plain text responses keep node ids when `nodeId=1` is passed, so another tool can act on a node after reading a compacted tree. `compact=2` keeps node ids by default because it is intended for agent-action target selection. When wrapper nodes are collapsed, the remaining child keeps its own original `id`.
-
-`compact=2` collapses redundant same-layout scroll wrapper chains when the wrapper has no target props or text. Text and image wrapper chains are collapsed more aggressively, even when their layouts differ, as long as the wrapper does not carry target information that an agent may need. If a wrapper carries target information such as `testID`, `nativeID`, `accessibilityLabel`, `accessibilityRole`, or `disabled`, it is preserved so an agent can still target it.
+Compact JSON and plain text responses keep node ids when `nodeId=1` is passed, so another tool can act on a node after reading a compacted tree. When wrapper nodes are collapsed, the remaining child keeps its own original `id`.
 
 ## App Identity
 

@@ -104,7 +104,6 @@ Useful query parameters:
 
 - `start`: choose a component name as the root of the response
 - `compact=1`: reduce noise by removing zero-size nodes and flattening simple wrapper pairs
-- `compact=2`: keep only touchable, scrollable, text, and image nodes, including common `react-native-gesture-handler` touch surfaces, with agent-action target fields
 - `plain=1`: return an indented `text/plain` tree instead of JSON
 - `layoutPrecision`: control decimal precision for layout values
 - `nodeId`: pass `1` to include node ids in compact/plain output, or `0` to remove node ids from JSON output

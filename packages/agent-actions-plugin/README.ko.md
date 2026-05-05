@@ -16,7 +16,7 @@ Maestro는 target에 visible text가 있거나, 주변의 안정적인 anchor를
 
 element-inspector와 agent-actions 조합은 다르게 동작합니다.
 
-1. `/element-inspector?appId=<appId>&plain=1&compact=2`를 호출해 현재 React Native tree를 관찰합니다.
+1. `/element-inspector?appId=<appId>&plain=1&nodeId=1`을 호출해 node id가 포함된 현재 React Native tree를 관찰합니다.
 2. agent가 `id`, `text`, `testID`, `nativeID`, `accessibilityLabel`, `type`, `displayName`, layout 중 하나를 기준으로 action 후보를 고릅니다.
 3. 해당 target으로 `/agent-actions/press` 또는 `/agent-actions/scroll`을 호출합니다.
 
@@ -24,7 +24,7 @@ element-inspector와 agent-actions 조합은 다르게 동작합니다.
 
 이 조합은 순수 black-box 흐름보다 더 정교하게 앱을 조작할 수도 있습니다. agent는 현재 React tree의 node id, layout bounds, text, 선별된 props를 확인한 뒤, visible text, accessibility label, 화면 좌표로 상호작용을 추정하는 대신 자신이 고른 정확한 Fiber node를 target으로 지정할 수 있습니다. 조밀한 화면, 반복되는 label, 중첩된 touch target, scroll container, 그리고 상태를 관찰한 뒤 후보 하나를 고르고 action 후 다시 관찰해야 하는 agent loop에서 특히 유용합니다.
 
-대신 이것은 native user gesture가 아니라 semantic JavaScript action입니다. `/agent-actions/press`는 매칭된 Fiber node를 찾고 가장 가까운 enabled `onPress`를 호출합니다. `/agent-actions/scroll`은 지원되는 scroll method를 호출합니다. 복잡한 `react-native-gesture-handler` gesture, drag interaction, native-only control, OS dialog, React Native tree 밖의 UI는 여전히 Maestro나 다른 native automation 도구가 필요할 수 있습니다. `compact=2`는 agent가 reasoning할 수 있도록 주요 gesture-handler surface를 관찰 output에 포함하지만, action 실행 가능 여부는 runtime이 무엇을 노출하는지에 달려 있습니다.
+대신 이것은 native user gesture가 아니라 semantic JavaScript action입니다. `/agent-actions/press`는 매칭된 Fiber node를 찾고 가장 가까운 enabled `onPress`를 호출합니다. `/agent-actions/scroll`은 지원되는 scroll method를 호출합니다. 복잡한 `react-native-gesture-handler` gesture, drag interaction, native-only control, OS dialog, React Native tree 밖의 UI는 여전히 Maestro나 다른 native automation 도구가 필요할 수 있습니다. Action 실행 가능 여부는 runtime이 무엇을 노출하는지에 달려 있습니다.
 
 ## 사용법
 
@@ -57,10 +57,12 @@ curl -s "http://localhost:8081/apps"
 ### Element inspector로 UI 관찰
 
 ```sh
-curl -s "http://localhost:8081/element-inspector?appId=<appId>&plain=1&compact=2"
+curl -s "http://localhost:8081/element-inspector?appId=<appId>&plain=1&nodeId=1"
 ```
 
-Raw element-tree 관찰과 target 선택 책임은 element inspector plugin에 있습니다. `compact=2`는 터치 가능, 스크롤 가능, text, image node와 node `id` 값을 기본으로 유지하므로, agent는 압축된 tree에서 `id`를 고른 뒤 `/agent-actions/press` 또는 `/agent-actions/scroll`에 다시 전달해야 합니다.
+Raw element-tree 관찰과 target 선택 책임은 element inspector plugin에 있습니다. 관찰한 node를 id로 action해야 한다면 `nodeId=1`을 전달하고, 선택한 `id`를 `/agent-actions/press` 또는 `/agent-actions/scroll`에 다시 전달하세요.
+
+LLM agent는 `/element-inspector`의 JSON response를 요청한 뒤 tree를 순회해서 제어에 사용할 node나 path를 찾을 수도 있습니다. Hierarchy, layout, props, child 관계를 정확히 확인한 뒤 press 또는 scroll target을 결정해야 할 때 유용합니다. 다만 전체 JSON tree를 그대로 LLM에 입력하면 token을 많이 소모할 수 있으므로 권장하지 않습니다. 가능하면 `start`로 tree를 먼저 좁히거나, hierarchy만 필요할 때는 plain text를 요청하거나, agent에 필요한 field와 subtree만 추출해서 전달하세요.
 
 ### Press
 
