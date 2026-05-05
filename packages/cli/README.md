@@ -51,6 +51,10 @@ const {
   reactNavigationPlugin,
 } = require('@react-native-scalable-devtools/react-navigation-plugin');
 const {
+  patchDebuggerFrontend: patchReactQueryDebuggerFrontend,
+  reactQueryPlugin,
+} = require('@react-native-scalable-devtools/react-query-plugin');
+const {
   agentActionsPlugin,
 } = require('@react-native-scalable-devtools/agent-actions-plugin');
 
@@ -63,6 +67,9 @@ module.exports = {
       elementInspectorPlugin(),
       reactNavigationPlugin({
         patchDebuggerFrontend: patchReactNavigationDebuggerFrontend,
+      }),
+      reactQueryPlugin({
+        patchDebuggerFrontend: patchReactQueryDebuggerFrontend,
       }),
       agentActionsPlugin(),
     ),
@@ -182,6 +189,20 @@ It is useful because:
 - it performs navigation inside the app runtime instead of reproducing every tap
 
 This plugin performs JavaScript semantic navigation through React Navigation. It does not simulate native gestures or OS-level back behavior.
+
+### `@react-native-scalable-devtools/react-query-plugin`
+
+Use this plugin when you need to inspect a registered React Query or TanStack Query `QueryClient` from the debugger frontend or from a host-side endpoint.
+
+It is useful because:
+
+- apps register their own `QueryClient` directly from runtime code
+- it observes query cache changes in real time
+- it exposes host-side `/react-query/queries` snapshots
+- it can patch the React Native debugger frontend with a live `Queries` tab using the existing app socket mapping
+- selecting a query key opens a closable detail pane with the query data and state
+
+This plugin observes query keys and data. It does not mutate query data, invalidate queries, or trigger refetches.
 
 ### `@react-native-scalable-devtools/agent-actions-plugin`
 

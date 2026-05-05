@@ -31,6 +31,10 @@ const PACKAGES = [
     directory: 'packages/react-navigation-plugin',
   },
   {
+    name: '@react-native-scalable-devtools/react-query-plugin',
+    directory: 'packages/react-query-plugin',
+  },
+  {
     name: '@react-native-scalable-devtools/agent-actions-plugin',
     directory: 'packages/agent-actions-plugin',
   },

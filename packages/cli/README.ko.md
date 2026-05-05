@@ -51,6 +51,10 @@ const {
   reactNavigationPlugin,
 } = require('@react-native-scalable-devtools/react-navigation-plugin');
 const {
+  patchDebuggerFrontend: patchReactQueryDebuggerFrontend,
+  reactQueryPlugin,
+} = require('@react-native-scalable-devtools/react-query-plugin');
+const {
   agentActionsPlugin,
 } = require('@react-native-scalable-devtools/agent-actions-plugin');
 
@@ -63,6 +67,9 @@ module.exports = {
       elementInspectorPlugin(),
       reactNavigationPlugin({
         patchDebuggerFrontend: patchReactNavigationDebuggerFrontend,
+      }),
+      reactQueryPlugin({
+        patchDebuggerFrontend: patchReactQueryDebuggerFrontend,
       }),
       agentActionsPlugin(),
     ),
@@ -182,6 +189,20 @@ core package는 의도적으로 작게 유지합니다. 특별한 동작은 plug
 - 모든 tap을 재현하지 않고 app runtime 안에서 navigation을 실행합니다.
 
 이 plugin은 React Navigation을 통한 JavaScript semantic navigation을 수행합니다. Native gesture나 OS-level back 동작을 시뮬레이션하지는 않습니다.
+
+### `@react-native-scalable-devtools/react-query-plugin`
+
+이 plugin은 등록된 React Query 또는 TanStack Query `QueryClient`를 debugger frontend나 host-side endpoint에서 확인해야 할 때 사용합니다.
+
+필요한 이유:
+
+- 앱 runtime code에서 사용하는 `QueryClient`를 직접 등록합니다.
+- query cache 변화를 실시간으로 관찰합니다.
+- host-side `/react-query/queries` snapshot endpoint를 제공합니다.
+- 기존 app socket mapping을 사용하는 live `Queries` 탭을 React Native debugger frontend에 추가할 수 있습니다.
+- query key를 선택하면 query data와 state를 담은 닫을 수 있는 detail pane이 열립니다.
+
+이 plugin은 query key와 data를 관찰합니다. Query data를 변경하거나, query를 invalidate하거나, refetch를 실행하지는 않습니다.
 
 ### `@react-native-scalable-devtools/agent-actions-plugin`
 

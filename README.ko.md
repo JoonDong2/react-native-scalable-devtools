@@ -50,6 +50,10 @@ const {
   reactNavigationPlugin,
 } = require('@react-native-scalable-devtools/react-navigation-plugin');
 const {
+  patchDebuggerFrontend: patchReactQueryDebuggerFrontend,
+  reactQueryPlugin,
+} = require('@react-native-scalable-devtools/react-query-plugin');
+const {
   agentActionsPlugin,
 } = require('@react-native-scalable-devtools/agent-actions-plugin');
 
@@ -63,6 +67,9 @@ module.exports = {
       reactNavigationPlugin({
         patchDebuggerFrontend: patchReactNavigationDebuggerFrontend,
       }),
+      reactQueryPlugin({
+        patchDebuggerFrontend: patchReactQueryDebuggerFrontend,
+      }),
       agentActionsPlugin(),
     ),
   ],
@@ -74,8 +81,10 @@ module.exports = {
 - `@react-native-scalable-devtools/cli`의 `GET /apps`: 연결된 앱, `appId`, 그리고 각 앱에 대해 호스트 OS가 인식한 디바이스 식별자를 확인합니다.
 - `@react-native-scalable-devtools/element-inspector-plugin`의 `GET /element-inspector`: 연결된 앱의 live element tree를 가져옵니다.
 - `@react-native-scalable-devtools/react-navigation-plugin`의 `GET /react-navigation/state`, `POST /react-navigation/navigate`, `POST /react-navigation/back`: 외부 agent가 등록된 React Navigation state를 읽고 화면을 이동할 수 있게 합니다.
+- `@react-native-scalable-devtools/react-query-plugin`의 `GET /react-query/queries`: 외부 agent가 등록된 QueryClient cache data를 읽을 수 있게 합니다.
 - `@react-native-scalable-devtools/agent-actions-plugin`의 `POST /agent-actions/press`와 `POST /agent-actions/scroll`: 외부 agent가 매칭된 view를 press하거나 매칭된 container를 scroll 할 수 있게 합니다.
 - React Navigation plugin은 기존 app socket mapping 위의 커스텀 `ReactNavigation` CDP domain으로 동작하는 live `Navigation` 탭도 debugger frontend에 추가할 수 있습니다.
+- React Query plugin은 기존 app socket mapping 위의 커스텀 `ReactQuery` CDP domain으로 동작하는 live `Queries` 탭도 debugger frontend에 추가할 수 있습니다.
 
 앱이 하나뿐이면 `appId`를 생략할 수 있는 경우가 많습니다. 앱이 둘 이상이면 요청이 원하는 runtime으로 가도록 `appId`를 전달해야 합니다.
 
@@ -87,6 +96,7 @@ module.exports = {
 - `@react-native-scalable-devtools/network-plugin`: network inspection plugin입니다. 기본 React Native network panel보다 더 나은 HTTP 요청과 WebSocket 트래픽 가시성이 필요할 때 사용합니다. socket traffic을 Fetch/XHR와 분리해서 볼 수 있도록 debugger frontend도 patch합니다. [패키지 README](packages/network-plugin/README.md) 참고.
 - `@react-native-scalable-devtools/element-inspector-plugin`: live element-tree inspection plugin입니다. 개발 호스트에서 현재 React Native UI hierarchy를 확인하고, tree를 compact 하거나, agent나 script가 읽기 쉬운 plain text로 바꾸고, Maestro CLI 같은 호스트 도구로 앱을 특정 상태로 만든 뒤 snapshot을 얻고 싶을 때 사용합니다. [패키지 README](packages/element-inspector-plugin/README.ko.md) 참고.
 - `@react-native-scalable-devtools/react-navigation-plugin`: React Navigation plugin입니다. 외부 LLM agent가 등록된 React Navigation state를 읽고, 등록된 `navigationRef`로 화면을 이동하거나 go back 하고, debugger frontend에서 navigation state를 실시간으로 확인해야 할 때 사용합니다. [패키지 README](packages/react-navigation-plugin/README.ko.md) 참고.
+- `@react-native-scalable-devtools/react-query-plugin`: React Query plugin입니다. QueryClient를 등록하고, query key와 data 변화를 실시간으로 관찰하거나 debugger frontend에서 query data를 확인해야 할 때 사용합니다. [패키지 README](packages/react-query-plugin/README.ko.md) 참고.
 - `@react-native-scalable-devtools/agent-actions-plugin`: agent action plugin입니다. 외부 LLM agent가 현재 UI target을 resolve하고, 매칭된 view를 press하거나 scroll container를 스크롤해야 할 때 사용합니다. [패키지 README](packages/agent-actions-plugin/README.ko.md) 참고.
 
 ## 패키지 문서
@@ -97,4 +107,5 @@ module.exports = {
 - [network plugin README](packages/network-plugin/README.md)
 - [element inspector plugin README](packages/element-inspector-plugin/README.md)
 - [React Navigation plugin README](packages/react-navigation-plugin/README.ko.md)
+- [React Query plugin README](packages/react-query-plugin/README.ko.md)
 - [agent actions plugin README](packages/agent-actions-plugin/README.ko.md)
